@@ -22,7 +22,7 @@ Baseado no [brisma/gbsc-pro](https://github.com/brisma/gbsc-pro), que deriva do 
 
 ## Links
 
-[Documentação](docs/DOCUMENTACAO.md) | [Manual do GBSC Pro](https://www.retroscaler.com/?page_id=480)
+[Documentação](docs/DOCUMENTACAO.md)
 
 ## Scanlines
 
