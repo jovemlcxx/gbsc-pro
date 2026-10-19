@@ -8,7 +8,6 @@
     <img src="https://img.shields.io/badge/Output-HDMI_1080p-orange?style=flat-square" alt="Output" />
     <img src="https://img.shields.io/badge/Language-PT--BR_%7C_EN--US-009c3b?style=flat-square" alt="Language" />
     <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPL_3.0-blue?style=flat-square" alt="License" /></a>
-    <a href="https://discord.com/invite/2MMWRkVRbk"><img src="https://img.shields.io/badge/Discord-Community-5865F2?style=flat-square&logo=discord&logoColor=white" alt="Discord" /></a>
     <a href="https://www.reddit.com/user/jovemlcxx/"><img src="https://img.shields.io/badge/Reddit-u%2Fjovemlcxx-FF4500?style=flat-square&logo=reddit&logoColor=white" alt="Reddit" /></a>
     <a href="https://ko-fi.com/jovemlcxx"><img src="https://img.shields.io/badge/Ko--fi-Support_me-FF5E5B?style=flat-square&logo=ko-fi&logoColor=white" alt="Ko-fi" /></a>
 </p>
@@ -23,7 +22,7 @@ Baseado no [brisma/gbsc-pro](https://github.com/brisma/gbsc-pro), que deriva do 
 
 ## Links
 
-[Documentação](docs/DOCUMENTACAO.md) | [Manual do GBSC Pro](https://www.retroscaler.com/?page_id=480) | [Discord](https://discord.com/invite/2MMWRkVRbk)
+[Documentação](docs/DOCUMENTACAO.md) | [Manual do GBSC Pro](https://www.retroscaler.com/?page_id=480)
 
 ## Scanlines
 
