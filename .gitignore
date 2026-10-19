@@ -1,0 +1,7 @@
+.pio/
+node_modules/
+__pycache__/
+*.pyc
+.vscode/
+.claude/
+*.pdf
