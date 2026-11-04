@@ -87,12 +87,8 @@ O display **OLED** e o **knob** na parte superior dão acesso ao menu sem o cont
 
 ## 4. Imagem e escala
 
-### Imagem livre e quadro 4:3
-Por padrão a imagem é **livre**: não há moldura 4:3 obrigatória, então jogos de qualquer proporção (por exemplo, arcades em 16:9) podem ser esticados e movidos até onde você quiser. A janela visível ocupa a largura da tela, e a única limitação é a borda da linha de vídeo capturada.
-
-O **Quadro 4:3** é opcional. Quando ligado, a janela visível vira um quadro 4:3 exato, centralizado, que corta o excesso, e a cada troca de preset o firmware ajusta a escala para a imagem preencher o quadro.
-
-Para ligar ou desligar: Web → Settings → *Quadro 4:3*, ou Developer → página 6.
+### Imagem livre
+A imagem é **livre**: jogos de qualquer proporção (por exemplo, arcades em 16:9) podem ser esticados e movidos até onde você quiser. A janela visível ocupa a largura da tela, e a única limitação é a borda da linha de vídeo capturada.
 
 ### Mover e esticar
 Todos os passos são de cerca de **1 pixel** por toque.
@@ -138,7 +134,6 @@ As scanlines vêm **ligadas e configuradas**, com intensidade 50.
 Esticar a imagem na vertical fora dos fatores inteiros torna o padrão irregular. Use *Centralizar* ou *Redefinir escala* para voltar ao padrão.
 
 ### Limitações conhecidas
-- **1080p PAL (50 Hz):** com o Quadro 4:3 ligado, o quadro não fecha, porque a escala horizontal do chip já está no limite.
 - **Overlay:** o chip não tem camada gráfica para sobrepor imagens ou máscaras. O OSD da TV (STV9426) tem 28×3 caracteres.
 
 ---
@@ -160,7 +155,6 @@ A saída HDMI é feita pelo conversor **MS9288A** da placa, que entrega o preto 
 |---|---|
 | Idioma | Inglês (PT-BR selecionável) |
 | Resolução de saída | 1920x1080 |
-| Quadro 4:3 | Desligado (opcional) |
 | Scanlines | Ligadas, intensidade 50 |
 | Filtro de Linha | Ligado |
 | Nitidez | Ligada |
@@ -187,7 +181,6 @@ A GBS responde em `http://gbscontrol.local/` ou pelo IP dela.
 | Endpoint | Uso |
 |---|---|
 | `GET /lang` · `/lang?set=0\|1` | Consulta ou troca o idioma (0 = EN-US, 1 = PT-BR) |
-| `GET /fit` · `/fit?set=0\|1` | Quadro 4:3 desligado ou ligado (reaplica o preset; `set=1` também descarta a escala manual) |
 | `GET /range` · `/range?set=0..15` | Expansão de faixa de cor por classe de saída (bit0 480p, bit1 720p, bit2 960p/1024p, bit3 1080p). Padrão 0 |
 | `GET /reg?s=3&r=35` | Lê o registrador `s3_35` (hexadecimal) |
 | `GET /reg?s=3&r=35&v=95` | Escreve `0x95` em `s3_35` |
@@ -239,10 +232,10 @@ Arquivos novos:
 - `OLEDMenuTranslations_pt.h`: bitmaps PT-BR (gerado).
 
 Arquivos alterados:
-- `gbs-control.ino`: padrões e migrações, reaplicação no boot, quadro 4:3, mover e esticar, pixels duros, nitidez, endpoints e preservação dos filtros ao carregar slots.
+- `gbs-control.ino`: padrões e migrações, reaplicação no boot, mover e esticar, pixels duros, nitidez, endpoints e preservação dos filtros ao carregar slots.
 - `pro/gbs-control-pro.cpp`: conversão de cor.
 - `pro/drivers/stv9426.h`, `pro/osd/**`: textos traduzidos no OSD, ajuste do tracejado e menus Developer e Ajustes de Tela.
 - `pro/menu/**`: menu Idioma, ordem das resoluções, Centralizar, Redefinir escala e scanlines sempre configuráveis.
 - `OLEDMenuManager.*`, `OLEDMenuImplementation.cpp`: bitmaps traduzidos e item Idioma.
 - `generate_translations.py`: textos PT-BR e opção `--suffix`.
-- `public/src/*`, `webui.html`, `webui_html.h`: idioma da Web e opções *Idioma*, *Quadro 4:3*, *Centralizar* e *Redefinir escala*.
+- `public/src/*`, `webui.html`, `webui_html.h`: idioma da Web e opções *Idioma*, *Centralizar* e *Redefinir escala*.

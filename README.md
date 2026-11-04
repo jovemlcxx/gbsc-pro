@@ -40,9 +40,8 @@ Fontes atendidas: 240p/288p, ou 480i/576i com deinterlace *Bob*.
 - Troca em *Menu → página 4 → Idioma*, ou na Web em *Settings → Idioma*. O padrão é inglês.
 
 ### Imagem
-- **Imagem livre:** sem moldura 4:3 obrigatória, para jogos de qualquer proporção. Estique e mova até onde quiser; o limite é a própria tela.
+- **Imagem livre**, para jogos de qualquer proporção. Estique e mova até onde quiser; o limite é a própria tela.
 - **Mover e esticar com passos de ~1 pixel.** O esticar horizontal cresce para a direita e o vertical para baixo.
-- **Quadro 4:3 opcional**, desligado por padrão, para quem prefere a imagem presa a um quadro 4:3 centralizado.
 - **Centralizar** (mantém o tamanho) e **Redefinir escala** (volta ao ajuste automático), no menu *Ajustes de Tela*, na Web e pela tecla INFO do controle.
 - Saída padrão em 1080p, com cores corretas.
 
@@ -58,7 +57,6 @@ Tudo isto já vem ativo em uma GBS nova ou depois de *Restaurar Padroes*, sem pr
 |---|---|---|
 | Idioma | Inglês | Inglês (**PT-BR** selecionável) |
 | Resolução de saída | 1280x960 | **1920x1080** |
-| Quadro 4:3 | Não existe | **Opcional**, desligado (imagem livre) |
 | Scanlines | Desligadas | **Ligadas** |
 | Intensidade das scanlines | 30 | **50** |
 | Scanlines em RGB/HV (SCART) | Bloqueadas | **Liberadas** |
