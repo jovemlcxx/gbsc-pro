@@ -6,17 +6,23 @@
 
 Firmware do **GBSC Pro** em **português do Brasil**, desenvolvido para a comunidade brasileira.
 
-Converte o vídeo de consoles retrô para HDMI até 1080p, com baixa latência, imagem livre para esticar e mover, scanlines prontas para uso e menus em **PT-BR e EN-US** (OLED, TV e Web).
+Converte o vídeo de consoles retrô para HDMI até 1080p, com baixa latência. O que o diferencia do firmware original:
+
+- **Scanlines novas, feitas do zero**, geradas pelo próprio chip, já ligadas em 50.
+- **Liga e desliga do console tratados:** tela preta sem sinal, espera pelo sinal estável e preset reaplicado sozinho.
+- **Padrões de fábrica de verdade**, aplicados uma única vez, inclusive sobre configurações já salvas.
+- **Imagem livre**, com mover e esticar em passos de ~1 pixel.
+- **Menus completos em PT-BR e EN-US** (OLED, TV e Web).
 
 Baseado no [brisma/gbsc-pro](https://github.com/brisma/gbsc-pro), que deriva do [RetroScaler/gbsc-pro](https://github.com/RetroScaler/gbsc-pro) e do [gbs-control](https://github.com/ramapcsx2/gbs-control) de ramapcsx2.
 
 ## Links
 
-[Documentação](docs/DOCUMENTACAO.md) | [Manual do GBSC Pro](https://www.retroscaler.com/?page_id=480) | [Discord](https://discord.com/invite/2MMWRkVRbk)
+[Documentação](docs/DOCUMENTACAO.md) | [Manual do GBSC Pro](https://www.retroscaler.com/?page_id=480)
 
 ## Scanlines
 
-As scanlines são o principal destaque deste firmware: **já vêm ligadas e configuradas**. Ao ligar a GBS, elas estão ativas.
+As scanlines são o principal destaque deste firmware. **São totalmente novas**: não existem no firmware original, foram criadas para este projeto e **já vêm ligadas e configuradas**. O padrão segue um ciclo de 4 linhas inspirado no do OSSC, que em 960p tem exatamente 2 linhas claras e 2 escuras por linha do jogo.
 
 - **Geradas pelo próprio chip:** o TV5725 escurece as linhas da imagem antes de escalar. Não há camada sobreposta nem perda de nitidez.
 - **Configuração de fábrica:** ligadas, intensidade 50, com Filtro de Linha e Nitidez ativos.
@@ -32,6 +38,15 @@ As scanlines são o principal destaque deste firmware: **já vêm ligadas e conf
 | 1920x1080 | 4,5× | Regulares |
 
 Fontes atendidas: 240p/288p, ou 480i/576i com deinterlace *Bob*.
+
+## Liga e desliga do console
+
+O original deixava a última imagem congelada ao desligar o console e mostrava tremor, quadro verde e borda cinza ao ligar. Aqui o sincronismo é tratado de ponta a ponta:
+
+- **Sinal perdido = tela preta**, em vez de imagem congelada ou verde.
+- **Espera o sinal estabilizar** antes de mostrar a imagem, escondendo o tremor da troca de modo de vídeo.
+- **Preset reaplicado sozinho**, uma vez por ligada, o que elimina a borda cinza do conversor HDMI.
+- **Configurações preservadas:** scanlines, intensidade, filtro de linha, nitidez e resposta de cor continuam como você deixou.
 
 ## Novidades
 
@@ -51,7 +66,7 @@ Fontes atendidas: 240p/288p, ou 480i/576i com deinterlace *Bob*.
 
 ## Padrões de fábrica
 
-Tudo isto já vem ativo em uma GBS nova ou depois de *Restaurar Padroes*, sem precisar configurar.
+Tudo isto já vem ativo em uma GBS nova ou depois de *Restaurar Padrões*, sem precisar configurar.
 
 | Item | Firmware do brisma | Este firmware |
 |---|---|---|
