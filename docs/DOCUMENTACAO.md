@@ -73,7 +73,7 @@ O display **OLED** e o **knob** na parte superior dão acesso ao menu sem o cont
 
 ## 3. Idioma
 
-- O firmware tem **PT-BR e EN-US** no menu OLED, no menu da TV e na Web.
+- O firmware tem **PT-BR e EN-US** no menu OLED, no menu da TV e na Web. O padrão é inglês.
 - Para trocar:
   - **Controle remoto:** Menu → página 4 → **Idioma** (esquerda, direita ou OK);
   - **Menu OLED por bitmaps:** item **Idioma**, antes de *Versão do firmware*;
@@ -87,10 +87,10 @@ O display **OLED** e o **knob** na parte superior dão acesso ao menu sem o cont
 
 ## 4. Imagem e escala
 
-### Quadro 4:3
-Com **Quadro 4:3** ligado (padrão), a janela visível é um quadro 4:3 exato, centralizado em todas as resoluções. O que passar dele é cortado. Em 1280x1024 o quadro ocupa a largura inteira da tela.
+### Imagem livre e quadro 4:3
+Por padrão a imagem é **livre**: não há moldura 4:3 obrigatória, então jogos de qualquer proporção (por exemplo, arcades em 16:9) podem ser esticados e movidos até onde você quiser. A janela visível ocupa a largura da tela, e a única limitação é a borda da linha de vídeo capturada.
 
-A cada troca de preset, o firmware calcula a escala horizontal para que a imagem preencha o quadro.
+O **Quadro 4:3** é opcional. Quando ligado, a janela visível vira um quadro 4:3 exato, centralizado, que corta o excesso, e a cada troca de preset o firmware ajusta a escala para a imagem preencher o quadro.
 
 Para ligar ou desligar: Web → Settings → *Quadro 4:3*, ou Developer → página 6.
 
@@ -122,10 +122,10 @@ Mover, Escala, Bordas e Altura Total continuam no menu e na Web (painel *Picture
 
 ## 5. Scanlines
 
-As scanlines vêm **ligadas e configuradas**, com intensidade 00 (a mais escura).
+As scanlines vêm **ligadas e configuradas**, com intensidade 50.
 
 - O TV5725 escurece as linhas da imagem no deinterlacer, **antes** de escalar. Não há overlay.
-- Intensidade de 00 a 50, ajustável pelo menu da TV, menu OLED, controle remoto e Web.
+- Intensidade de 00 a 50, ajustável pelo menu da TV, menu OLED, controle remoto e Web. No menu, **direita aumenta** e **esquerda diminui**, um passo por toque, sem voltar ao início. O mesmo vale para o nível de SOG (Developer).
 - Funcionam com fontes 240p/288p, ou 480i/576i com deinterlace *Bob*, inclusive no modo RGB/HV (SCART).
 - Trocar de preset, mudar a resolução ou reiniciar mantém a configuração.
 
@@ -138,8 +138,7 @@ As scanlines vêm **ligadas e configuradas**, com intensidade 00 (a mais escura)
 Esticar a imagem na vertical fora dos fatores inteiros torna o padrão irregular. Use *Centralizar* ou *Redefinir escala* para voltar ao padrão.
 
 ### Limitações conhecidas
-- **1080p PAL (50 Hz):** o quadro 4:3 não fecha, porque a escala horizontal do chip já está no limite.
-- **480p/576p:** o quadro já é 4:3, então não há ajuste.
+- **1080p PAL (50 Hz):** com o Quadro 4:3 ligado, o quadro não fecha, porque a escala horizontal do chip já está no limite.
 - **Overlay:** o chip não tem camada gráfica para sobrepor imagens ou máscaras. O OSD da TV (STV9426) tem 28×3 caracteres.
 
 ---
@@ -159,10 +158,10 @@ A saída HDMI é feita pelo conversor **MS9288A** da placa, que entrega o preto 
 
 | Item | Padrão |
 |---|---|
-| Idioma | PT-BR |
+| Idioma | Inglês (PT-BR selecionável) |
 | Resolução de saída | 1920x1080 |
-| Quadro 4:3 | Ligado |
-| Scanlines | Ligadas, intensidade 00 |
+| Quadro 4:3 | Desligado (opcional) |
+| Scanlines | Ligadas, intensidade 50 |
 | Filtro de Linha | Ligado |
 | Nitidez | Ligada |
 | Pixels duros (filtro de 6 taps desviado) | Ligado |
@@ -172,6 +171,8 @@ A saída HDMI é feita pelo conversor **MS9288A** da placa, que entrega o preto 
 | Volume | 35 |
 
 Na primeira inicialização depois de gravar, o firmware aplica esses padrões **uma única vez** às preferências e aos slots já salvos. Depois disso, tudo continua configurável.
+
+Quando o sinal some (console desligado ou reiniciando), a tela fica **preta** em vez de mostrar a última imagem congelada, e volta depois que o sinal fica estável.
 
 Ao ligar, o firmware reaplica o preset uma vez, automaticamente, depois que o sinal estabiliza. Isso evita a borda cinza causada pelo conversor HDMI.
 

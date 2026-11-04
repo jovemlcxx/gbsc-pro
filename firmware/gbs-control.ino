@@ -3527,7 +3527,7 @@ uint32_t getPllRate()
 // 480p/576p, downscale and bypass presets are left untouched.
 // 0 = off (stock preset), 1 = 4:3 box (default). Developer menu "Fit 4:3", /fit.
 #define FIT43_LEVELS 2
-uint8_t fit43Enabled = 1;
+uint8_t fit43Enabled = 0;
 
 // Hard pixels (CRT look): bypass the VDS 6-tap horizontal filter. Developer menu page 7,
 // stored in /hard.txt, default on. The delay compensation mirrors the old 't' command.
@@ -3667,6 +3667,9 @@ void hardPixelsSave()
 // stays grey until the output resolution is applied again by hand. That manual path programs the
 // preset with useHdmiSyncFix = 1 (sync off while programming, so the converter re-detects) and a
 // fresh getVideoMode(). Do exactly that once, shortly after the first preset with a valid signal.
+// Source gone (console off): the DAC is powered down so the screen goes black instead of showing
+// the frozen last frame; it comes back as soon as the sync is stable again.
+static bool dacBlankedBySync = false;
 static bool bootReapplyDone = false;
 static unsigned long bootReapplyAt = 0;
 volatile bool fit43Reapply = false;
@@ -3703,16 +3706,14 @@ static void applyFit43()
     bool pal = isPalGroup();
     uint16_t manualH = pal ? uopt->screenHScale_pal : uopt->screenHScale_ntsc;
     uint16_t manualV = pal ? uopt->screenVScale_pal : uopt->screenVScale_ntsc;
-    if (!fit43Enabled && manualH == 0 && manualV == 0 && geomMoveH == 0 && geomMoveV == 0)
-        return; // stock preset geometry
-
     freezeVideo(); // no half-written geometry on screen
     float box43 = 4.0f / 3.0f * lines / pxPerClk; // 4:3 width in VDS clocks
-    if (fit43Enabled) {
-        // 4:3 frame centred on the preset's window (never wider than the screen: 1280x1024)
+    {
+        // visible window: the whole screen width, centred on the preset's window (the optional
+        // 4:3 frame narrows it to a 4:3 box); setHScaleCentred() keeps it inside the captured data
         uint16_t sp = GBS::VDS_DIS_HB_SP::read(), st = GBS::VDS_DIS_HB_ST::read();
         float maxW = screenPx / pxPerClk;
-        uint16_t boxW = (uint16_t)((box43 < maxW ? box43 : maxW) + 0.5f);
+        uint16_t boxW = (uint16_t)((fit43Enabled && box43 < maxW ? box43 : maxW) + 0.5f);
         int16_t nsp = (int16_t)((sp + st) / 2 - boxW / 2) & ~1;
         if (nsp > 16 && nsp + boxW < GBS::VDS_HSYNC_RST::read() - 4) {
             geomFrameSp = nsp;
@@ -4528,6 +4529,7 @@ void doPostPresetLoadSteps()
         GBS::PAD_SYNC_OUT_ENZ::write(0); // enable sync out if needed
     }
     GBS::DAC_RGBS_PWDNZ::write(1); // DAC on if needed
+    dacBlankedBySync = false;
     GBS::DAC_RGBS_SPD::write(0);   // 0_45 2 DAC_SVM power down disable, somehow less jailbars
     GBS::DAC_RGBS_S0ENZ::write(0); //
     GBS::DAC_RGBS_S1EN::write(1);  // these 2 also help
@@ -4753,7 +4755,7 @@ static File initSlotsFile()
     strncpy(emptySlot.name, EMPTY_SLOT_NAME, 25);
     emptySlot.wantStepResponse = true;
     emptySlot.scanlines = 1;            // OSSC-like scanlines on by default
-    emptySlot.scanlinesStrength = 0x00;
+    emptySlot.scanlinesStrength = 0x50;
     emptySlot.wantVdsLineFilter = 1;
     emptySlot.wantPeaking = true;
     emptySlot.wantSharpness = 1;
@@ -7056,6 +7058,11 @@ void runSyncWatcher()
             freezeVideo();
         }
 
+        if (rto->noSyncCounter == 4 && !dacBlankedBySync) {
+            GBS::DAC_RGBS_PWDNZ::write(0); // black screen while there is no signal
+            dacBlankedBySync = true;
+        }
+
         if (newVideoModeCounter == 0) {
             LEDOFF; // LEDOFF on sync loss
 
@@ -7318,6 +7325,10 @@ void runSyncWatcher()
         // last used mode reappeared / stable again
         if (rto->continousStableCounter < 255) {
             rto->continousStableCounter++;
+        }
+        if (dacBlankedBySync && rto->continousStableCounter >= 12) { // wait out the start-up jitter
+            GBS::DAC_RGBS_PWDNZ::write(1);
+            dacBlankedBySync = false;
         }
 
         static boolean doFullRestore = 0;
@@ -8195,7 +8206,7 @@ void loadDefaultUserOptions()
     uopt->wantStepResponse = 1;              // #15
     uopt->wantFullHeight = 1;                // #16
     uopt->enableCalibrationADC = 1;          // #17
-    uopt->scanlineStrength = 0x00;           // #18 (menu "00" = darkest)
+    uopt->scanlineStrength = 0x50;           // #18 (menu "50")
     uopt->disableExternalClockGenerator = 0; // #19
 
     // GBSC-Pro global settings (stored in uopt)
@@ -8622,7 +8633,7 @@ void setup()
 
             uopt->scanlineStrength = (uint8_t)(f.read() - '0'); // #18
             if (uopt->scanlineStrength > 0x60)
-                uopt->scanlineStrength = 0x00;
+                uopt->scanlineStrength = 0x50;
 
             uopt->disableExternalClockGenerator = (uint8_t)(f.read() - '0'); // #19
             if (uopt->disableExternalClockGenerator > 1)
@@ -8778,7 +8789,7 @@ void setup()
     // stored preferences and slots once. They stay user-configurable afterwards (menus / web).
     if (!LittleFS.exists("/sl_v3.txt")) {
         uopt->wantScanlines = 1;
-        uopt->scanlineStrength = 0x00;
+        uopt->scanlineStrength = 0x50;
         saveUserPrefs();
         File sf = LittleFS.open(SLOTS_FILE, "r+");
         if (sf) {
@@ -8787,9 +8798,9 @@ void setup()
                 sf.seek(SLOTS_HEADER_SIZE + i * sizeof(SlotMeta));
                 if (sf.read((byte *)&meta, sizeof(SlotMeta)) != sizeof(SlotMeta))
                     break;
-                if (meta.scanlines != 1 || meta.scanlinesStrength != 0x00) {
+                if (meta.scanlines != 1 || meta.scanlinesStrength != 0x50) {
                     meta.scanlines = 1;
-                    meta.scanlinesStrength = 0x00;
+                    meta.scanlinesStrength = 0x50;
                     sf.seek(SLOTS_HEADER_SIZE + i * sizeof(SlotMeta));
                     sf.write((byte *)&meta, sizeof(SlotMeta));
                 }
@@ -8797,6 +8808,32 @@ void setup()
             sf.close();
         }
         File mark = LittleFS.open("/sl_v3.txt", "w");
+        if (mark) {
+            mark.write('1');
+            mark.close();
+        }
+    }
+
+    // One-time: default scanline strength is 50 (stored preferences and slots)
+    if (!LittleFS.exists("/sl_v4.txt")) {
+        uopt->scanlineStrength = 0x50;
+        saveUserPrefs();
+        File sf = LittleFS.open(SLOTS_FILE, "r+");
+        if (sf) {
+            for (uint8_t i = 0; i < SLOTS_TOTAL; i++) {
+                SlotMeta meta;
+                sf.seek(SLOTS_HEADER_SIZE + i * sizeof(SlotMeta));
+                if (sf.read((byte *)&meta, sizeof(SlotMeta)) != sizeof(SlotMeta))
+                    break;
+                if (meta.scanlinesStrength != 0x50) {
+                    meta.scanlinesStrength = 0x50;
+                    sf.seek(SLOTS_HEADER_SIZE + i * sizeof(SlotMeta));
+                    sf.write((byte *)&meta, sizeof(SlotMeta));
+                }
+            }
+            sf.close();
+        }
+        File mark = LittleFS.open("/sl_v4.txt", "w");
         if (mark) {
             mark.write('1');
             mark.close();
@@ -8836,6 +8873,17 @@ void setup()
         OSD_setTheme(uopt->osdTheme);
         saveUserPrefs();
         File mark = LittleFS.open("/theme_v1.txt", "w");
+        if (mark) {
+            mark.write('1');
+            mark.close();
+        }
+    }
+
+    // One-time: the 4:3 frame is optional and off by default (free picture)
+    if (!LittleFS.exists("/free_v1.txt")) {
+        fit43Enabled = 0;
+        fit43Save();
+        File mark = LittleFS.open("/free_v1.txt", "w");
         if (mark) {
             mark.write('1');
             mark.close();
@@ -10523,6 +10571,36 @@ void loop()
 #if defined(ESP8266)
 #include "webui_html.h"
 // gzip -c9 webui.html > webui_html && xxd -i webui_html > webui_html.h && rm webui_html && sed -i -e 's/unsigned char webui_html\[]/const uint8_t webui_html[] PROGMEM/' webui_html.h && sed -i -e 's/unsigned int webui_html_len/const unsigned int webui_html_len/' webui_html.h
+
+// Pro: scanline strength 00..50 in steps of 10, right = higher number, no wrap
+void scanlineStrengthStep(int8_t dir)
+{
+    int s = (uopt->scanlineStrength >> 4) + dir;
+    if (s < 0 || s > 5) {
+        SerialM.println("limit");
+        return;
+    }
+    uopt->scanlineStrength = s << 4;
+    if (rto->scanlinesEnabled) {
+        GBS::MADPT_Y_MI_OFFSET::write(uopt->scanlineStrength);
+        GBS::MADPT_UV_MI_OFFSET::write(uopt->scanlineStrength);
+    }
+    saveUserPrefs();
+}
+
+// Pro: SOG slicer level 0..16, one step per key, no wrap
+void sogLevelStep(int8_t dir)
+{
+    int l = rto->currentLevelSOG + dir;
+    if (l < 0 || l > 16) {
+        SerialM.println("limit");
+        return;
+    }
+    rto->currentLevelSOG = l;
+    setAndUpdateSogLevel(rto->currentLevelSOG);
+    optimizePhaseSP();
+    setDevSogLevel(rto->currentLevelSOG);
+}
 
 void handleType2Command(char argument)
 {

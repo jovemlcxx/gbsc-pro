@@ -15,7 +15,7 @@
 #include "../OLEDMenuTranslations.h"
 #include "../OLEDMenuTranslations_pt.h"
 
-uint8_t uiLang = LANG_PT;
+uint8_t uiLang = LANG_EN;
 
 // X("English", "Portugues")
 #define I18N_TABLE \
@@ -253,7 +253,7 @@ const char *i18nLangName(uint8_t lang)
 
 void i18nLoad()
 {
-    uiLang = LANG_PT; // firmware default; /lang.txt overrides it
+    uiLang = LANG_EN; // firmware default; /lang.txt overrides it
     File f = LittleFS.open("/lang.txt", "r");
     if (f) {
         int c = f.read() - '0';

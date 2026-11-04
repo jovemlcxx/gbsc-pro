@@ -16,6 +16,7 @@ extern char serialCommand;
 extern char userCommand;
 extern void saveUserPrefs();
 extern boolean areScanLinesAllowed();
+extern void scanlineStrengthStep(int8_t dir);
 
 // ====================================================================================
 // IR_handleColorSettings - Color Settings Menu
@@ -222,7 +223,12 @@ bool IR_handleColorSettings()
 
     // OLED_ColorSettings_Scanlines
     else if (oled_menuItem == OLED_ColorSettings_Scanlines) {
-        showMenuToggle("Menu->Color", "Scanlines", uopt->wantScanlines);
+        {
+            // "ON 50": left/right change the strength, OK switches the scanlines on/off
+            static char scanVal[12];
+            snprintf(scanVal, sizeof(scanVal), "%s %02d", uopt->wantScanlines ? "ON" : "OFF", (uopt->scanlineStrength >> 4) * 10);
+            showMenuValue("Menu->Color", "Scanlines", scanVal);
+        }
         OSD_handleCommand(OSD_CMD_COLOR_PAGE2_VALUES);
 
         if (irDecode()) {
@@ -237,8 +243,10 @@ bool IR_handleColorSettings()
                     Menu_navigateTo(OLED_ColorSettings_LineFilter);
                     break;
                 case IR_KEY_RIGHT:
+                    scanlineStrengthStep(1); // strength: always stored, applied when the signal allows
+                    break;
                 case IR_KEY_LEFT:
-                    userCommand = 'K'; // strength: always stored, applied when the signal allows
+                    scanlineStrengthStep(-1);
                     break;
                 case IR_KEY_OK:
                     userCommand = '7'; // on/off: always stored, applied when the signal allows

@@ -2,38 +2,28 @@
     <img alt="gbsc-pro" src="assets/gbsc-pro%20logo.png" />
 </p>
 
-<p align="center">
-    <img src="https://img.shields.io/badge/Hardware-GBSC_Pro-007ACC?style=flat-square" alt="Hardware" />
-    <img src="https://img.shields.io/badge/Platform-ESP8266-E7352C?style=flat-square&logo=espressif&logoColor=white" alt="Platform" />
-    <img src="https://img.shields.io/badge/Output-HDMI_1080p-orange?style=flat-square" alt="Output" />
-    <img src="https://img.shields.io/badge/Language-PT--BR_%7C_EN--US-009c3b?style=flat-square" alt="Language" />
-    <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPL_3.0-blue?style=flat-square" alt="License" /></a>
-    <a href="https://www.reddit.com/user/jovemlcxx/"><img src="https://img.shields.io/badge/Reddit-u%2Fjovemlcxx-FF4500?style=flat-square&logo=reddit&logoColor=white" alt="Reddit" /></a>
-    <a href="https://ko-fi.com/jovemlcxx"><img src="https://img.shields.io/badge/Ko--fi-Support_me-FF5E5B?style=flat-square&logo=ko-fi&logoColor=white" alt="Ko-fi" /></a>
-</p>
-
 ---
 
 Firmware do **GBSC Pro** em **português do Brasil**, desenvolvido para a comunidade brasileira.
 
-Converte o vídeo de consoles retrô para HDMI até 1080p, com baixa latência, quadro 4:3 centralizado, scanlines prontas para uso e menus em **PT-BR e EN-US** (OLED, TV e Web).
+Converte o vídeo de consoles retrô para HDMI até 1080p, com baixa latência, imagem livre para esticar e mover, scanlines prontas para uso e menus em **PT-BR e EN-US** (OLED, TV e Web).
 
 Baseado no [brisma/gbsc-pro](https://github.com/brisma/gbsc-pro), que deriva do [RetroScaler/gbsc-pro](https://github.com/RetroScaler/gbsc-pro) e do [gbs-control](https://github.com/ramapcsx2/gbs-control) de ramapcsx2.
 
 ## Links
 
-[Documentação](docs/DOCUMENTACAO.md)
+[Documentação](docs/DOCUMENTACAO.md) | [Manual do GBSC Pro](https://www.retroscaler.com/?page_id=480) | [Discord](https://discord.com/invite/2MMWRkVRbk)
 
 ## Scanlines
 
 As scanlines são o principal destaque deste firmware: **já vêm ligadas e configuradas**. Ao ligar a GBS, elas estão ativas.
 
 - **Geradas pelo próprio chip:** o TV5725 escurece as linhas da imagem antes de escalar. Não há camada sobreposta nem perda de nitidez.
-- **Configuração de fábrica:** ligadas, intensidade 00 (a mais escura), com Filtro de Linha e Nitidez ativos.
-- **Sempre ajustáveis:** liga/desliga e intensidade (00 a 50) pelo menu da TV, menu OLED, controle remoto e Web. O valor é guardado mesmo quando o sinal atual não permite scanlines.
+- **Configuração de fábrica:** ligadas, intensidade 50, com Filtro de Linha e Nitidez ativos.
+- **Sempre ajustáveis:** liga/desliga e intensidade (00 a 50) pelo menu da TV, menu OLED, controle remoto e Web. No menu, direita aumenta e esquerda diminui a intensidade, um passo por toque. O valor é guardado mesmo quando o sinal atual não permite scanlines.
 - **Disponíveis em RGB pela SCART:** no firmware original elas ficavam bloqueadas ao ligar neste modo. Agora funcionam.
 - **Persistentes:** trocar de preset, mudar a resolução ou reiniciar mantém a sua configuração.
-- **Compatíveis com a escala:** funcionam com o quadro 4:3 e com o mover e esticar de ~1 pixel.
+- **Compatíveis com a escala:** funcionam com o mover e o esticar de ~1 pixel.
 
 | Saída | Fator vertical (240p) | Scanlines |
 |---|---|---|
@@ -47,11 +37,12 @@ Fontes atendidas: 240p/288p, ou 480i/576i com deinterlace *Bob*.
 
 ### Idioma
 - **PT-BR e EN-US** em todo o sistema: menu OLED, menu da TV e Web.
-- Troca em *Menu → página 4 → Idioma*, ou na Web em *Settings → Idioma*. O padrão é PT-BR.
+- Troca em *Menu → página 4 → Idioma*, ou na Web em *Settings → Idioma*. O padrão é inglês.
 
 ### Imagem
-- **Quadro 4:3 fixo e centralizado** em todas as resoluções. A área 4:3 é o limite: o que passar dela é cortado.
+- **Imagem livre:** sem moldura 4:3 obrigatória, para jogos de qualquer proporção. Estique e mova até onde quiser; o limite é a própria tela.
 - **Mover e esticar com passos de ~1 pixel.** O esticar horizontal cresce para a direita e o vertical para baixo.
+- **Quadro 4:3 opcional**, desligado por padrão, para quem prefere a imagem presa a um quadro 4:3 centralizado.
 - **Centralizar** (mantém o tamanho) e **Redefinir escala** (volta ao ajuste automático), no menu *Ajustes de Tela*, na Web e pela tecla INFO do controle.
 - Saída padrão em 1080p, com cores corretas.
 
@@ -65,11 +56,11 @@ Tudo isto já vem ativo em uma GBS nova ou depois de *Restaurar Padroes*, sem pr
 
 | Item | Firmware do brisma | Este firmware |
 |---|---|---|
-| Idioma | Inglês | **PT-BR** (EN-US selecionável) |
+| Idioma | Inglês | Inglês (**PT-BR** selecionável) |
 | Resolução de saída | 1280x960 | **1920x1080** |
-| Quadro 4:3 | Não existe | **Ligado**, fixo e centralizado |
+| Quadro 4:3 | Não existe | **Opcional**, desligado (imagem livre) |
 | Scanlines | Desligadas | **Ligadas** |
-| Intensidade das scanlines | 30 | **00** (a mais escura) |
+| Intensidade das scanlines | 30 | **50** |
 | Scanlines em RGB/HV (SCART) | Bloqueadas | **Liberadas** |
 | Filtro de Linha | Desligado | **Ligado** |
 | Nitidez | Desligada, zerada a cada preset | **Ligada**, salva e reaplicada |
@@ -93,6 +84,7 @@ Na primeira inicialização depois de gravar, o firmware aplica esses padrões *
 - **Configurações sobrescritas:** trocar de preset ou reiniciar substituía os filtros em uso (scanlines, intensidade, filtro de linha, peaking, resposta de cor) pelos do slot. Agora os filtros em uso são mantidos.
 - **Scanlines bloqueadas:** com RGB pela SCART, a GBS entra no modo RGB/HV e as scanlines ficavam travadas (vermelho) até redefinir tudo. Agora funcionam.
 - **Nitidez perdida:** era zerada a cada troca de preset, inclusive ao ligar. Agora é salva e reaplicada.
+- **Tela preta sem sinal:** ao desligar ou reiniciar o console, a tela fica preta em vez de mostrar a última imagem congelada ou verde, e volta quando o sinal estabiliza.
 - **Borda cinza:** o conversor HDMI travava no primeiro timing. O firmware reaplica o preset uma vez, automaticamente, depois que o sinal estabiliza.
 - **Padrões de fábrica:** aplicados de fato nas configurações já salvas, sem reconfigurar.
 - **Tearing:** o Active FrameTime Lock vem ligado e elimina a linha de tearing parada.
@@ -100,7 +92,7 @@ Na primeira inicialização depois de gravar, o firmware aplica esses padrões *
 - **Calibração do ADC:** corrigido um bug herdado do gbs-control em que uma intensidade de scanline inválida desligava a calibração.
 
 ### Imagem e escala
-- **Mover e esticar:** a imagem só crescia para um lado e o quadro visível aumentava junto, ultrapassando o 4:3. Agora o quadro é fixo, corta o excesso e cada toque move ~1 pixel.
+- **Mover e esticar:** a imagem só crescia para um lado, o quadro visível aumentava junto e os passos eram grossos. Agora a janela de vídeo fica fixa na largura da tela e cada toque move ou estica ~1 pixel.
 - **Controle do menu:** direita estreitava e cima achatava, o contrário da Web. Agora as direções são iguais.
 - **Escala salva:** é reaplicada centralizada ao religar.
 - **Bordas do 1080p:** eliminadas as faixas verdes nas laterais.

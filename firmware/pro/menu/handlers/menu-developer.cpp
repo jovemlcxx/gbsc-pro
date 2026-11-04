@@ -13,6 +13,7 @@ extern char serialCommand;
 extern char userCommand;
 extern uint8_t fit43Enabled;
 extern uint8_t hardPixelsEnabled;
+extern void sogLevelStep(int8_t dir);
 extern void hardPixelsSave();
 extern void fit43Save();
 extern void applyPresets(uint8_t videoMode);
@@ -535,7 +536,11 @@ bool IR_handleDeveloperMenu()
                     Menu_navigateTo(OLED_Developer_ResetChip);
                     break;
                 case IR_KEY_RIGHT:
+                    sogLevelStep(1);
+                    break;
                 case IR_KEY_LEFT:
+                    sogLevelStep(-1);
+                    break;
                 case IR_KEY_OK:
                     userCommand = 'z';
                     break;

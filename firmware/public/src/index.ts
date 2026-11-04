@@ -2771,9 +2771,9 @@ const initLanguage = () => {
   if (select) {
     select.addEventListener("change", () => setWebLanguage(parseInt(select.value, 10), true));
   }
-  let stored = 1;
+  let stored = 0;
   try {
-    stored = parseInt(localStorage.getItem("gbs-lang") || "1", 10);
+    stored = parseInt(localStorage.getItem("gbs-lang") || "0", 10);
   } catch (e) {}
   setWebLanguage(stored, false);
   // the device is the source of truth (same language on OLED, TV and web)
