@@ -9079,6 +9079,17 @@ void updateWebSocketData()
                     break;
                 default:
                     toSend[1] = '0';
+                    // no preset loaded yet (boot, or no signal): mark the output the user prefers, as the buttons would show later
+                    if (rto->presetID == 0) {
+                        switch (uopt->presetPreference) {
+                            case Output960P: toSend[1] = '1'; break;
+                            case Output1024P: toSend[1] = '2'; break;
+                            case Output720P: toSend[1] = '3'; break;
+                            case Output480P: toSend[1] = '4'; break;
+                            case Output1080P: toSend[1] = '5'; break;
+                            default: break;
+                        }
+                    }
                     break;
             }
 
