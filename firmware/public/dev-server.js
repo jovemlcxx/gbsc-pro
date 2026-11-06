@@ -295,7 +295,11 @@ const handleRequest = (req, res) => {
   }
 
   if (url.pathname === '/bin/slots.bin') {
-    const buffer = createMockSlotsData();
+    // the real file starts with a 16 byte header: "GBSPS ", format version 1 at [6]
+    const header = Buffer.alloc(16);
+    header.write('GBSPS', 0, 'latin1');
+    header.writeUInt8(0x01, 6);
+    const buffer = Buffer.concat([header, createMockSlotsData()]);
     console.log(`  ├─ 📦 Slots Binary: ${buffer.length} bytes`);
     res.writeHead(200, {
       'Content-Type': 'application/octet-stream',
@@ -688,10 +692,15 @@ const handleRequest = (req, res) => {
     const oswald = fs.readFileSync(path.join(__dirname, 'assets/fonts/oswald.woff2')).toString('base64');
     const material = fs.readFileSync(path.join(__dirname, 'assets/fonts/material.woff2')).toString('base64');
 
+    const pcb = fs.readFileSync(path.join(__dirname, 'assets/images/pcb.jpg')).toString('base64');
+    const logo = fs.readFileSync(path.join(__dirname, 'assets/images/logo.png')).toString('base64');
+
     // Process CSS with fonts
     const cssProcessed = css
       .replace('${oswald}', oswald)
-      .replace('${material}', material);
+      .replace('${material}', material)
+      .replace(/\$\{pcb\}/g, pcb)
+      .replace(/\$\{logo\}/g, logo);
 
     // Process manifest
     const manifestContent = fs.readFileSync(path.join(__dirname, 'src', 'manifest.json'), 'utf-8')

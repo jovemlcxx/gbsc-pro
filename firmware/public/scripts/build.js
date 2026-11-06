@@ -23,10 +23,19 @@ const favicon = fs
   .readFileSync("./../assets/icons/gbsc-logo.png")
   .toString("base64");
 
+const pcb = fs
+  .readFileSync("./../assets/images/pcb.jpg")
+  .toString("base64");
+const logo = fs
+  .readFileSync("./../assets/images/logo.png")
+  .toString("base64");
+
 const css = fs
   .readFileSync("./../src/style.css", "utf-8")
   .replace("${oswald}", oswald)
-  .replace("${material}", material);
+  .replace("${material}", material)
+  .replace(/\$\{pcb\}/g, pcb)
+  .replace(/\$\{logo\}/g, logo);
 
 const manifest = fs
   .readFileSync("./../src/manifest.json", "utf-8")

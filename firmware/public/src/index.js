@@ -2557,11 +2557,6 @@ const main = () => {
     const ip = location.hostname;
     GBSControl.serverIP = ip;
     GBSControl.webSocketServerUrl = `ws://${ip}:81/`;
-    document
-        .querySelector(".gbs-loader img")
-        .setAttribute("src", document.head
-        .querySelector('[rel="apple-touch-icon"]')
-        .getAttribute("href"));
     initLanguage();
     initUpdate();
     fetchSlotNamesAndInit();

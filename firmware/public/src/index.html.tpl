@@ -19,81 +19,7 @@
   <body tabindex="0" class="gbs-help-hide gbs-output-hide">
     <div class="gbs-container">
       <div class="gbs-menu">
-        <svg
-          version="1.0"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0,0,284,115"
-          class="gbs-menu__logo"
-        >
-          <path
-            fill-rule="evenodd"
-            clip-rule="evenodd"
-            fill="#010101"
-            d="M283.465 114.986H0V0h283.465v114.986z"
-          />
-          <path
-            fill-rule="evenodd"
-            clip-rule="evenodd"
-            fill="#00c0fb"
-            d="M270.062 66.08V51.242h-17.04v10.079c0 2.604-2.67 5.02-5.075 5.02h-20.529c-4.983 0-5.43-4.23-5.43-8.298v-37.93c0-2.668 1.938-4.863 4.88-4.863h20.995c2.684 0 5.158 1.492 5.158 4.482V29.86h17.04V18.63c0-7.867-4.26-15.923-13.039-15.923H221.19c-7.309 0-15.604 4.235-15.604 12.652v50.387c0 6.508 4.883 13.068 12.42 13.068h38.47c6.606 0 13.587-5.803 13.587-12.734zM190.488 2.562H6.617L6.585 78.91h183.91l-.007-76.348z"
-          />
-          <text
-            transform="translate(98.5 68.95)"
-            fill="#010101"
-            font-family="'AmsiPro-BoldItalic'"
-            font-size="80"
-            letter-spacing="-7"
-            text-anchor="middle"
-          >
-            GBS
-          </text>
-          <text
-            transform="translate(142 110)"
-            fill="#00c0fb"
-            font-family="'AmsiPro-BoldItalic'"
-            font-size="42"
-            letter-spacing="-2"
-            font-weight="bold"
-            text-anchor="middle"
-          >
-            PRO
-          </text>
-          <g>
-            <path
-              fill-rule="evenodd"
-              clip-rule="evenodd"
-              fill="#010101"
-              d="M586.93 114.986H303.464V0h283.464v114.986z"
-            />
-            <path
-              fill-rule="evenodd"
-              clip-rule="evenodd"
-              fill="#FFF"
-              d="M573.526 66.08V51.242h-17.04v10.079c0 2.604-2.669 5.02-5.075 5.02h-20.528c-4.984 0-5.43-4.23-5.43-8.298v-37.93c0-2.668 1.937-4.863 4.88-4.863h20.995c2.683 0 5.157 1.492 5.157 4.482V29.86h17.04V18.63c0-7.867-4.26-15.923-13.038-15.923h-35.833c-7.31 0-15.605 4.235-15.605 12.652v50.387c0 6.508 4.884 13.068 12.42 13.068h38.471c6.606 0 13.586-5.803 13.586-12.734zM493.953 2.562H310.08l-.032 76.348h183.91l-.006-76.348z"
-            />
-            <text
-              transform="translate(402 68.95)"
-              fill="#010101"
-              font-family="'AmsiPro-BoldItalic'"
-              font-size="80"
-              letter-spacing="-7"
-              text-anchor="middle"
-            >
-              GBS
-            </text>
-            <text
-              transform="translate(445.5 110)"
-              fill="#FFF"
-              font-family="'AmsiPro-BoldItalic'"
-              font-size="42"
-              letter-spacing="-2"
-              font-weight="bold"
-              text-anchor="middle"
-            >
-              PRO
-            </text>
-          </g>
-        </svg>
+        <div class="gbs-menu__logo" role="img" aria-label="GBS-C PRO"></div>
         <button
           gbs-section="presets"
           class="gbs-button gbs-button__menu gbs-icon"
@@ -2018,7 +1944,7 @@
           </fieldset>
         </div>
       </div>
-      <div class="gbs-loader"><img /></div>
+      <div class="gbs-loader"><div class="gbs-loader__logo"></div></div>
     </div>
     <div class="gbs-wifi-warning" id="websocketWarning">
       <div class="gbs-icon blink_me">signal_wifi_off</div>
