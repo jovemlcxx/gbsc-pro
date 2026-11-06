@@ -11238,6 +11238,16 @@ void startWebserver()
         SerialM.println(event.reason);
     });
 
+    // Low memory: answer "busy" right away. The handlers below used to stay silent in that case, which left the
+    // browser waiting on a request that never ended (the change looked lost) and kept a connection slot occupied.
+    server.addMiddleware([](AsyncWebServerRequest *request, ArMiddlewareNext next) {
+        if (ESP.getFreeHeap() <= 10000) {
+            request->send(503, "text/plain", "busy");
+            return;
+        }
+        next();
+    });
+
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
         //Serial.println("sending web page");
         if (ESP.getFreeHeap() > 10000) {
@@ -11511,9 +11521,11 @@ void startWebserver()
         request->send(200, "application/json", wifiMode == WIFI_AP ? "{\"mode\":\"ap\"}" : "{\"mode\":\"sta\",\"ssid\":\"" + WiFi.SSID() + "\"}");
     });
 
-    // Firmware version and room for an update: GET /fw
+    // Firmware version, room for an update and a health snapshot (memory, uptime, WiFi, open Web UIs): GET /fw
     server.on("/fw", HTTP_GET, [](AsyncWebServerRequest *request) {
-        request->send(200, "application/json", String("{\"version\":\"") + GBSC_PRO_FW_VERSION + "\",\"free\":" + ESP.getFreeSketchSpace() + "}");
+        request->send(200, "application/json", String("{\"version\":\"") + GBSC_PRO_FW_VERSION + "\",\"free\":" + ESP.getFreeSketchSpace() +
+                                                       ",\"heap\":" + ESP.getFreeHeap() + ",\"block\":" + ESP.getMaxFreeBlockSize() + ",\"up\":" + (millis() / 1000) +
+                                                       ",\"rssi\":" + WiFi.RSSI() + ",\"ws\":" + webSocket.connectedClients(false) + "}");
     });
 
     // Update over the network: POST /update[?md5=<hex>] with the .bin as a multipart file. The browser

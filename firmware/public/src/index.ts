@@ -347,7 +347,7 @@ const createWebSocket = () => {
 
   GBSControl.ws.onmessage = (message: any) => {
     clearTimeout(GBSControl.wsTimeout);
-    GBSControl.wsTimeout = setTimeout(timeOutWs, 2700);
+    GBSControl.wsTimeout = setTimeout(timeOutWs, 8000);
     GBSControl.isWsActive = true;
 
     const [
