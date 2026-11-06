@@ -128,7 +128,7 @@ Na primeira inicialização depois de gravar, o firmware aplica esses padrões *
 Antes de gravar, guarde uma cópia do firmware atual para poder voltar atrás.
 
 ### Pelo navegador (sem programas)
-No site, em [jovemlcxx.com/gbsc-pro](https://jovemlcxx.com/gbsc-pro/), o instalador grava o firmware pelo cabo USB direto do Chrome ou do Edge.
+No site, em [jovemlcxx.com.br/gbsc-pro](https://jovemlcxx.com.br/gbsc-pro/), o instalador grava o firmware pelo cabo USB direto do Chrome ou do Edge.
 
 ### Atualização pela rede
 Com este firmware (1.1.0 ou mais novo) já na placa, abra a Web da GBS (`http://gbscontrol.local/`), vá em **Firmware update** e clique em **Check for updates**. O navegador baixa a versão nova e envia para a placa, que confere o arquivo, grava e reinicia. Dá também para instalar de um `.bin` local (**Install from file**).
