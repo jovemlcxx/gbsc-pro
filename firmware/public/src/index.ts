@@ -2590,6 +2590,12 @@ const I18N_PT: { [en: string]: string } = {
   "Pr/V gain - change red-luma gain.": "Ganho Pr/V - altera o ganho vermelho-luma.",
   "Settings": "Configurações",
   "Language": "Idioma",
+  "Firmware update": "Atualização do firmware",
+  "Check for updates": "Verificar atualizações",
+  "Install update": "Instalar atualização",
+  "Install from file": "Instalar de um arquivo",
+  "Downloads the new firmware in this browser and sends it to the board. Your presets, slots and WiFi are kept.": "Baixa o novo firmware neste navegador e envia para a placa. Seus presets, slots e WiFi são mantidos.",
+  "Do not turn the board off while it updates.": "Não desligue a placa durante a atualização.",
   Center: "Centralizar",
   "Reset scale": "Redefinir escala",
   "Zoom enlarges the picture so the black border that consoles draw around the game is cropped.": "O zoom amplia a imagem para cortar a borda preta que os consoles desenham ao redor do jogo.",
@@ -2691,6 +2697,23 @@ const I18N_PT_MSG: Array<[string, string]> = [
   ["Backup was exported from firmware", "O backup foi exportado do firmware"],
   ["current build is", "a versão atual é"],
   ["Restarting GBSControl.", "Reiniciando o GBSControl."],
+  ["Installed version: ", "Versão instalada: "],
+  ["Update available: ", "Atualização disponível: "],
+  ["(installed: ", "(instalada: "],
+  ["Up to date: ", "Já está atualizado: "],
+  ["Checking for updates...", "Verificando atualizações..."],
+  ["Could not check for updates. The browser needs internet access.", "Não foi possível verificar. O navegador precisa de acesso à internet."],
+  ["Downloading firmware...", "Baixando o firmware..."],
+  ["Could not download the firmware. The browser needs internet access.", "Não foi possível baixar o firmware. O navegador precisa de acesso à internet."],
+  ["Sending firmware: ", "Enviando o firmware: "],
+  ["Update installed. The board is restarting, reload this page in a few seconds.", "Atualização instalada. A placa está reiniciando, recarregue esta página em alguns segundos."],
+  ["Update refused: ", "Atualização recusada: "],
+  ["not a firmware image", "não é uma imagem de firmware"],
+  ["not enough space", "espaço insuficiente"],
+  ["write failed", "falha na gravação"],
+  ["checksum mismatch", "checksum incorreto"],
+  ["Connection lost while sending the firmware. Check it by reloading the page.", "Conexão perdida durante o envio. Confira recarregando a página."],
+  ["Install this firmware file? Do not turn the board off until it restarts.", "Instalar este arquivo de firmware? Não desligue a placa até ela reiniciar."],
   ["Please wait until wifi reconnects then click OK", "Aguarde o WiFi reconectar e clique em OK"],
   ["GBSControl will restart and will connect to", "O GBSControl vai reiniciar e conectar a"],
   ["Please wait some seconds then press OK", "Aguarde alguns segundos e pressione OK"],
@@ -2749,6 +2772,101 @@ const setWebLanguage = (lang: number, persistOnDevice: boolean) => {
   }
 };
 
+/** firmware update over the network: the browser downloads the .bin and sends it to the board (POST /update) */
+const UPDATE_BASE = "https://raw.githubusercontent.com/jovemlcxx/gbsc-pro/main/releases/";
+
+const newerVersion = (a: string, b: string) => {
+  const pa = a.split(".").map((n) => parseInt(n, 10) || 0);
+  const pb = b.split(".").map((n) => parseInt(n, 10) || 0);
+  for (let i = 0; i < 3; i++) if ((pa[i] || 0) !== (pb[i] || 0)) return (pa[i] || 0) > (pb[i] || 0);
+  return false;
+};
+
+const initUpdate = () => {
+  const status = document.querySelector("[gbs-update-status]") as HTMLElement;
+  const checkBtn = document.querySelector("[gbs-update-check]") as HTMLElement;
+  const installBtn = document.querySelector("[gbs-update-install]") as HTMLElement;
+  const fileInput = document.querySelector("[gbs-update-file]") as HTMLInputElement;
+  if (!status || !checkBtn || !installBtn || !fileInput) return;
+  let installed = "";
+  let latest: { version: string; file: string; md5?: string } | null = null;
+  let busy = false;
+  const say = (msg: string) => (status.textContent = webT(msg));
+
+  fetch(`/fw?${+new Date()}`)
+    .then((r) => r.json())
+    .then((j) => {
+      installed = j.version;
+      say(`Installed version: ${installed}`);
+    })
+    .catch(() => {});
+
+  // sends the image to the board; the board checks it, writes it and restarts
+  const send = (blob: Blob, md5?: string) => {
+    busy = true;
+    const form = new FormData();
+    form.append("file", blob, "firmware.bin");
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", "/update" + (md5 ? `?md5=${md5}` : ""));
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable) say(`Sending firmware: ${Math.round((e.loaded / e.total) * 100)}%`);
+    };
+    xhr.onload = () => {
+      busy = false;
+      let res: any = {};
+      try {
+        res = JSON.parse(xhr.responseText);
+      } catch (e) {}
+      if (xhr.status === 200 && res.ok) {
+        say("Update installed. The board is restarting, reload this page in a few seconds.");
+      } else {
+        say(`Update refused: ${res.message || xhr.status}`);
+      }
+    };
+    xhr.onerror = () => {
+      busy = false;
+      say("Connection lost while sending the firmware. Check it by reloading the page.");
+    };
+    xhr.send(form);
+  };
+
+  checkBtn.addEventListener("click", () => {
+    if (busy) return;
+    say("Checking for updates...");
+    fetch(UPDATE_BASE + "version.json?" + +new Date())
+      .then((r) => r.json())
+      .then((j) => {
+        latest = j;
+        if (installed && newerVersion(j.version, installed)) {
+          say(`Update available: ${j.version} (installed: ${installed})`);
+          installBtn.removeAttribute("hidden");
+        } else {
+          say(`Up to date: ${installed || j.version}`);
+          installBtn.setAttribute("hidden", "");
+        }
+      })
+      .catch(() => say("Could not check for updates. The browser needs internet access."));
+  });
+
+  installBtn.addEventListener("click", () => {
+    if (busy || !latest) return;
+    say("Downloading firmware...");
+    fetch(UPDATE_BASE + latest.file + "?" + +new Date())
+      .then((r) => r.blob())
+      .then((blob) => send(blob, latest.md5))
+      .catch(() => say("Could not download the firmware. The browser needs internet access."));
+  });
+
+  fileInput.addEventListener("change", () => {
+    const f = fileInput.files && fileInput.files[0];
+    fileInput.value = "";
+    if (!f || busy) return;
+    gbsAlert("Install this firmware file? Do not turn the board off until it restarts.")
+      .then(() => send(f))
+      .catch(() => {});
+  });
+};
+
 const initLanguage = () => {
   const select = document.querySelector("[gbs-lang-select]") as HTMLSelectElement;
   if (select) {
@@ -2779,6 +2897,7 @@ const main = () => {
         .getAttribute("href")
     );
   initLanguage();
+  initUpdate();
   fetchSlotNamesAndInit();
 };
 

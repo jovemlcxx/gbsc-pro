@@ -13,6 +13,7 @@ Converte o vídeo de consoles retrô para HDMI até 1080p, com baixa latência. 
 - **Padrões de fábrica de verdade**, aplicados uma única vez, inclusive sobre configurações já salvas.
 - **Imagem livre**, com mover e esticar em passos de ~1 pixel.
 - **Menus completos em PT-BR e EN-US** (OLED, TV e Web).
+- **Atualização pela rede:** um clique na Web da placa verifica e instala a versão nova, sem cabo e mantendo presets, slots e WiFi.
 
 Baseado no [brisma/gbsc-pro](https://github.com/brisma/gbsc-pro), que deriva do [RetroScaler/gbsc-pro](https://github.com/RetroScaler/gbsc-pro) e do [gbs-control](https://github.com/ramapcsx2/gbs-control) de ramapcsx2.
 
@@ -125,6 +126,12 @@ Na primeira inicialização depois de gravar, o firmware aplica esses padrões *
 4. O módulo AV (`GBSC_PRO_AVMODULE_v2.4.1.bin`, com o `GBSC_PRO_Programmer.exe`) só precisa ser gravado se ainda não estiver instalado.
 
 Antes de gravar, guarde uma cópia do firmware atual para poder voltar atrás.
+
+### Pelo navegador (sem programas)
+No site, em [jovemlcxx.com/gbsc-pro](https://jovemlcxx.com/gbsc-pro/), o instalador grava o firmware pelo cabo USB direto do Chrome ou do Edge.
+
+### Atualização pela rede
+Com este firmware (1.1.0 ou mais novo) já na placa, abra a Web da GBS (`http://gbscontrol.local/`), vá em **Firmware update** e clique em **Check for updates**. O navegador baixa a versão nova e envia para a placa, que confere o arquivo, grava e reinicia. Dá também para instalar de um `.bin` local (**Install from file**).
 
 ### Configuração da TV
 Em **1280x960 e 1280x1024**, ajuste a TV para **nível de preto Baixo / faixa HDMI Limitada**. Detalhes na [documentação](docs/DOCUMENTACAO.md).

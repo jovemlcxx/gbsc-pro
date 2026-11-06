@@ -1855,6 +1855,33 @@
           </fieldset>
           <fieldset class="gbs-fieldset">
             <legend class="gbs-fieldset__legend">
+              <div class="gbs-icon">system_update</div>
+              <div>Firmware update</div>
+            </legend>
+            <!-- prettier-ignore -->
+            <ul class="gbs-help">
+              <li>Downloads the new firmware in this browser and sends it to the board. Your presets, slots and WiFi are kept.</li>
+              <li>Do not turn the board off while it updates.</li>
+            </ul>
+            <p gbs-update-status class="gbs-margin__bottom--16"></p>
+            <div class="gbs-flex">
+              <button class="gbs-button gbs-button__control gbs-button__secondary" gbs-update-check>
+                <div class="gbs-icon">cloud_sync</div>
+                <div>Check for updates</div>
+              </button>
+              <button class="gbs-button gbs-button__control" gbs-update-install hidden>
+                <div class="gbs-icon">system_update</div>
+                <div>Install update</div>
+              </button>
+              <button class="gbs-button gbs-button__control gbs-button__secondary">
+                <div class="gbs-icon">upload_file</div>
+                <input type="file" accept=".bin" gbs-update-file/>
+                <div>Install from file</div>
+              </button>
+            </div>
+          </fieldset>
+          <fieldset class="gbs-fieldset">
+            <legend class="gbs-fieldset__legend">
               <div class="gbs-icon">wifi</div>
               <div>Wi-Fi</div>
             </legend>

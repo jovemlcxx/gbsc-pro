@@ -19,6 +19,7 @@ Firmware do **GBSC Pro** (ESP8266) em português do Brasil, baseado no firmware 
 9. [Compilação](#9-compilação)
 10. [Traduções](#10-traduções)
 11. [Alterações no código](#11-alterações-no-código)
+12. [Atualização pela rede](#12-atualização-pela-rede)
 
 ---
 
@@ -184,6 +185,8 @@ A GBS responde em `http://gbscontrol.local/` ou pelo IP dela.
 | `GET /range` · `/range?set=0..15` | Expansão de faixa de cor por classe de saída (bit0 480p, bit1 720p, bit2 960p/1024p, bit3 1080p). Padrão 0 |
 | `GET /reg?s=3&r=35` | Lê o registrador `s3_35` (hexadecimal) |
 | `GET /reg?s=3&r=35&v=95` | Escreve `0x95` em `s3_35` |
+| `GET /fw` | Versão do firmware e espaço livre para atualização |
+| `POST /update` | Recebe um `.bin` (multipart) e atualiza; opcional `?md5=` |
 | `GET /reg` | Resultado da última operação (`seq` aumenta a cada leitura ou escrita) |
 
 As escritas via `/reg` são temporárias e valem até o próximo carregamento de preset. Os logs aparecem no console da aba Developer da Web (WebSocket, porta 81).
@@ -239,3 +242,15 @@ Arquivos alterados:
 - `OLEDMenuManager.*`, `OLEDMenuImplementation.cpp`: bitmaps traduzidos e item Idioma.
 - `generate_translations.py`: textos PT-BR e opção `--suffix`.
 - `public/src/*`, `webui.html`, `webui_html.h`: idioma da Web e opções *Idioma*, *Centralizar* e *Redefinir escala*.
+
+---
+
+## 12. Atualização pela rede
+
+A Web da placa tem a seção **Firmware update** (aba de sistema, junto do Backup).
+
+- **Check for updates:** o navegador lê `releases/version.json` deste repositório e compara com a versão da placa (`GET /fw`).
+- **Install update:** o navegador baixa o `.bin` e envia para `POST /update?md5=...`. A placa recusa arquivos que não comecem com o byte `0xE9`, confere o MD5, grava na área de atualização e reinicia sozinha. O sistema de arquivos (presets, slots, WiFi) não é tocado.
+- **Install from file:** o mesmo envio, com um `.bin` escolhido por você.
+- A placa não precisa de internet: quem baixa é o navegador.
+- Para publicar uma versão: compile, copie o `.bin` para `releases/`, atualize `version`, `size` e `md5` em `releases/version.json` e aumente `GBSC_PRO_FW_VERSION` em `pro/gbs-control-pro.h`.
