@@ -2053,8 +2053,7 @@ void shiftHorizontalRightIF(uint8_t amount)
 }
 
 // Pro: picture geometry with a fixed frame, relative to the preset.
-//   * the visible window VDS_DIS_HB_SP..ST (DIS_VB for lines) is the frame (4:3 when "Fit 4:3"
-//     is on) and crops whatever is wider;
+//   * the visible window VDS_DIS_HB_SP..ST (DIS_VB for lines) is the frame and crops whatever is wider;
 //   * the picture starts a fixed (unknown) delay after VDS_HB_SP / VDS_VB_SP, and its width is
 //     cap * 1024 / VDS_HSCALE clocks (height: lines * base vscale / VDS_VSCALE);
 //   * so the preset's own registers (captured right after the preset is loaded) are the
@@ -2069,9 +2068,9 @@ struct GeomBase {
 
 // picture move relative to the preset, in VDS clocks (horizontal) and output lines (vertical)
 static int16_t geomMoveH = 0, geomMoveV = 0;
-// offset that centres the automatic 4:3 fit; manual scale steps keep the picture's left edge
+// offset that centres the picture; manual scale steps keep the picture's left edge
 static int16_t geomCentreH = 0;
-// the fixed frame (VDS_DIS_HB_SP..ST) set by applyFit43, re-asserted on every geometry write
+// the fixed frame (VDS_DIS_HB_SP..ST) set by applyPicture, re-asserted on every geometry write
 static uint16_t geomFrameSp = 0, geomFrameSt = 0;
 #define GEOM_MOVE_BASE 0x4200
 
@@ -2161,7 +2160,7 @@ static bool setHScaleCentred(uint16_t h)
     GBS::VDS_HB_ST::write(st);
     if (geomFrameSt != 0) {
         // the frame crops, but never wider than the captured data: its edges (the line ends in
-        // memory) show as green strips (1080p, where the 4:3 frame is wider than the line)
+        // memory) show as green strips (1080p, where the frame is wider than the line)
         // data left edge: the preset's (frame centre - stock width / 2) moved with HB_SP; the
         // first columns of the line are garbage (dotted line), hence the larger left margin
         int16_t dataL = (int16_t)((geomFrameSp + geomFrameSt) / 2 - w0 / 2) + (sp - (int16_t)geomBase.hbSp);
@@ -3513,22 +3512,6 @@ uint32_t getPllRate()
 
 #define AUTO_GAIN_INIT 0x48
 
-// Pro: fixed 4:3 picture, full output height, centred in the output frame (side bars only).
-//
-// Model (derived from the preset tables, see commit notes):
-//   * the visible picture window is VDS_DIS_HB_SP..VDS_DIS_HB_ST, its width in VDS clocks
-//     is inversely proportional to VDS_HSCALE;
-//   * the window holds the captured input line (IF_HB_SP2..IF_HB_ST2 of IF_HSYNC_RST),
-//     of which the nominal 4:3 active part is 704/858 (NTSC) or 702/864 (PAL) of the line;
-//   * the preset already provides full output height (VSCALE) and a centred window.
-// The window becomes an exact 4:3 frame (fixed, it crops), and the horizontal scale is set so
-// the active part is lines * 4/3 output pixels wide, centred (setHScaleCentred).
-// In 1280x1024 the 4:3 width is wider than the screen: the frame stays full width and crops.
-// 480p/576p, downscale and bypass presets are left untouched.
-// 0 = off (stock preset), 1 = 4:3 box (default). Developer menu "Fit 4:3", /fit.
-#define FIT43_LEVELS 2
-uint8_t fit43Enabled = 0;
-
 // Hard pixels (CRT look): bypass the VDS 6-tap horizontal filter. Developer menu page 7,
 // stored in /hard.txt, default on. The delay compensation mirrors the old 't' command.
 uint8_t hardPixelsEnabled = 1;
@@ -3672,32 +3655,12 @@ void hardPixelsSave()
 static bool dacBlankedBySync = false;
 static bool bootReapplyDone = false;
 static unsigned long bootReapplyAt = 0;
-volatile bool fit43Reapply = false;
+volatile bool pictureReapply = false;
 
-void fit43Load()
-{
-    File f = LittleFS.open("/fit43.txt", "r");
-    if (f) {
-        int c = f.read() - '0';
-        if (c >= 0 && c < FIT43_LEVELS)
-            fit43Enabled = (uint8_t)c;
-        f.close();
-    }
-}
-
-void fit43Save()
-{
-    File f = LittleFS.open("/fit43.txt", "w");
-    if (f) {
-        f.write('0' + fit43Enabled);
-        f.close();
-    }
-}
-
-// Called after every preset (after applyDevOverrides): sets the 4:3 frame and the picture,
-// centred. A manual scale (Screen settings > Scale, Web) is kept, centred; otherwise the
-// nominal 4:3 part of the captured line fills the frame.
-static void applyFit43()
+// Called after every preset (after applyDevOverrides): the visible window is the whole screen
+// width, centred on the preset's window, and the picture is centred in it. A manual scale
+// (Screen settings > Scale, Web) is kept, centred.
+static void applyPicture()
 {
     float pxPerClk;
     uint16_t lines, screenPx;
@@ -3707,13 +3670,12 @@ static void applyFit43()
     uint16_t manualH = pal ? uopt->screenHScale_pal : uopt->screenHScale_ntsc;
     uint16_t manualV = pal ? uopt->screenVScale_pal : uopt->screenVScale_ntsc;
     freezeVideo(); // no half-written geometry on screen
-    float box43 = 4.0f / 3.0f * lines / pxPerClk; // 4:3 width in VDS clocks
     {
-        // visible window: the whole screen width, centred on the preset's window (the optional
-        // 4:3 frame narrows it to a 4:3 box); setHScaleCentred() keeps it inside the captured data
+        // visible window: the whole screen width, centred on the preset's window;
+        // setHScaleCentred() keeps it inside the captured data
         uint16_t sp = GBS::VDS_DIS_HB_SP::read(), st = GBS::VDS_DIS_HB_ST::read();
         float maxW = screenPx / pxPerClk;
-        uint16_t boxW = (uint16_t)((fit43Enabled && box43 < maxW ? box43 : maxW) + 0.5f);
+        uint16_t boxW = (uint16_t)(maxW + 0.5f);
         int16_t nsp = (int16_t)((sp + st) / 2 - boxW / 2) & ~1;
         if (nsp > 16 && nsp + boxW < GBS::VDS_HSYNC_RST::read() - 4) {
             geomFrameSp = nsp;
@@ -3722,33 +3684,15 @@ static void applyFit43()
             GBS::VDS_DIS_HB_ST::write(geomFrameSt);
         }
     }
-    uint16_t hFit = 0;
-    if (fit43Enabled) {
-        float active = (rto->presetID >= 0x10) ? 0.8125f : 0.8205f; // nominal 4:3 part of the line
-        float wantClk = ((float)geomBase.cap / GBS::IF_HSYNC_RST::read()) / active * box43;
-        float h = constrain(geomBase.cap * 1024.0f / wantClk + 0.5f, 256.0f, 1023.0f);
-        if (geomFrameSt > geomFrameSp) { // enough data to cover the whole frame (no strips)
-            float hCover = geomBase.cap * 1024.0f / (geomFrameSt - geomFrameSp);
-            if (h > hCover)
-                h = hCover;
-        }
-        hFit = (uint16_t)h;
-        float w0 = geomBase.cap * 1024.0f / geomBase.hScale;
-        float w = geomBase.cap * 1024.0f / hFit;
-        geomCentreH = (int16_t)((w0 - w) / 2 + (w0 >= w ? 0.5f : -0.5f)); // centred at the fit
-    } else {
-        geomCentreH = 0;
-    }
+    geomCentreH = 0;
     bool done = manualH != 0 && setHScaleCentred(manualH);
-    if (!done && !fit43Enabled)
+    if (!done)
         done = setHScaleCentred(geomBase.hScale); // moves only
-    if (!done && hFit != 0)
-        done = setHScaleCentred(hFit);
     if (manualV != 0)
         setVScaleCentred(manualV);
     else if (geomMoveV != 0)
         setVScaleCentred(geomBase.vScale);
-    SerialM.print(F("fit 4:3 hscale "));
+    SerialM.print(F("picture hscale "));
     SerialM.println(done ? GBS::VDS_HSCALE::read() : 0);
     unfreezeVideo();
 }
@@ -4651,8 +4595,8 @@ void doPostPresetLoadSteps()
     // Pro: Apply Developer menu and Screen per-slot overrides (if any)
     applyDevOverrides();
 
-    // Pro: fixed 4:3 geometry (after overrides: it has the final say on horizontal scale)
-    applyFit43();
+    // Pro: picture geometry (after overrides: it has the final say on horizontal scale)
+    applyPicture();
 
     // Pro: schedule the one-time boot re-apply (re-armed on every preset until it has run)
     if (!bootReapplyDone && !rto->sourceDisconnected && !rto->outModeHdBypass)
@@ -8552,7 +8496,6 @@ void setup()
 
         // UI language (OLED / TV OSD / Web UI), stored apart from the preferences file layout
         i18nLoad();
-        fit43Load();
         hardPixelsLoad();
         sharpnessLoad();
         rangeLoad();
@@ -8873,17 +8816,6 @@ void setup()
         OSD_setTheme(uopt->osdTheme);
         saveUserPrefs();
         File mark = LittleFS.open("/theme_v1.txt", "w");
-        if (mark) {
-            mark.write('1');
-            mark.close();
-        }
-    }
-
-    // One-time: the 4:3 frame is optional and off by default (free picture)
-    if (!LittleFS.exists("/free_v1.txt")) {
-        fit43Enabled = 0;
-        fit43Save();
-        File mark = LittleFS.open("/free_v1.txt", "w");
         if (mark) {
             mark.write('1');
             mark.close();
@@ -10138,7 +10070,7 @@ void loop()
                 SerialM.println((if_hblank_scale_stop + 1), HEX);
             } break;
             case 'U': {
-                // centre the picture in the 4:3 frame: drop only the move offsets, keep the scale
+                // centre the picture in the frame: drop only the move offsets, keep the scale
                 bool pal = isPalGroup();
                 uint16_t &mh = pal ? uopt->screenHMove_pal : uopt->screenHMove_ntsc;
                 uint16_t &mvs = pal ? uopt->screenVMoveSt_pal : uopt->screenVMoveSt_ntsc;
@@ -10151,7 +10083,7 @@ void loop()
                 geomMoveV = 0;
                 saveUserPrefs();
                 if (legacy || !hGeomSupported()) {
-                    fit43Reapply = true; // the scale is kept: manual scale is re-applied with the preset
+                    pictureReapply = true; // the scale is kept: manual scale is re-applied with the preset
                 } else {
                     setHScaleCentred(geomCurH());
                     setVScaleCentred(GBS::VDS_VSCALE::read());
@@ -10159,7 +10091,7 @@ void loop()
                 SerialM.println(F("picture centred"));
             } break;
             case 'Q':
-                // reset scale: drop manual scale and move of this standard, back to the automatic 4:3 fit
+                // reset scale: drop manual scale and move of this standard, back to the automatic picture
                 if (isPalGroup()) {
                     uopt->screenHMove_pal = 0;
                     uopt->screenHScale_pal = 0;
@@ -10176,7 +10108,7 @@ void loop()
                 geomMoveH = 0;
                 geomMoveV = 0;
                 saveUserPrefs();
-                fit43Reapply = true;
+                pictureReapply = true;
                 SerialM.println(F("scale reset"));
                 break;
             case 'X': {
@@ -10251,8 +10183,8 @@ void loop()
         }
     }
 
-    if (fit43Reapply) {
-        fit43Reapply = false;
+    if (pictureReapply) {
+        pictureReapply = false;
         applyPresets(rto->videoStandardInput);
     }
 
@@ -11562,25 +11494,6 @@ void startWebserver()
         request->send(200, "application/json", wifiMode == WIFI_AP ? "{\"mode\":\"ap\"}" : "{\"mode\":\"sta\",\"ssid\":\"" + WiFi.SSID() + "\"}");
     });
 
-    // Fit 4:3 level: GET /fit -> current, GET /fit?set=0..5 -> change (applied right away)
-    server.on("/fit", HTTP_GET, [](AsyncWebServerRequest *request) {
-        if (request->hasArg("set")) {
-            int v = request->arg("set").toInt();
-            if (v == 1) {
-                // back to the automatic frame: drop the manual horizontal scale
-                uopt->screenHScale_ntsc = 0;
-                uopt->screenHScale_pal = 0;
-                fit43Reapply = true;
-            }
-            if (v >= 0 && v < FIT43_LEVELS && v != fit43Enabled) {
-                fit43Enabled = (uint8_t)v;
-                fit43Save();
-                fit43Reapply = true; // heavy work happens in the main loop
-            }
-        }
-        request->send(200, "application/json", String("{\"level\":") + fit43Enabled + "}");
-    });
-
     // Range expansion mask: GET /range -> current, GET /range?set=0..15 -> change and re-apply
     server.on("/range", HTTP_GET, [](AsyncWebServerRequest *request) {
         if (request->hasArg("set")) {
@@ -11588,7 +11501,7 @@ void startWebserver()
             if (v >= 0 && v <= 15 && v != rangeExpandMask) {
                 rangeExpandMask = (uint8_t)v;
                 rangeSave();
-                fit43Reapply = true; // re-apply the preset in loop()
+                pictureReapply = true; // re-apply the preset in loop()
             }
         }
         request->send(200, "application/json", String("{\"mask\":") + rangeExpandMask + ",\"active\":" + (rangeExpandActive ? 1 : 0) + "}");

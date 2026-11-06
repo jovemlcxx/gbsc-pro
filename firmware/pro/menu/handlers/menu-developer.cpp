@@ -11,11 +11,9 @@
 
 extern char serialCommand;
 extern char userCommand;
-extern uint8_t fit43Enabled;
 extern uint8_t hardPixelsEnabled;
 extern void sogLevelStep(int8_t dir);
 extern void hardPixelsSave();
-extern void fit43Save();
 extern void applyPresets(uint8_t videoMode);
 extern struct runTimeOptions *rto;
 
@@ -553,43 +551,6 @@ bool IR_handleDeveloperMenu()
         return true;
     }
 
-    // OLED_Developer_Fit43 - fixed 4:3 geometry on/off (applied on the next preset load)
-    else if (oled_menuItem == OLED_Developer_Fit43) {
-        showMenuToggle("Developer", "Fit 4:3", fit43Enabled);
-        OSD_handleCommand(OSD_CMD_DEV_PAGE6_VALUES);
-
-        if (irDecode()) {
-            switch (results.value) {
-                case IR_KEY_MENU:
-                    Menu_navigateTo(OLED_Developer);
-                    break;
-                case IR_KEY_UP:
-                    Menu_navigateTo(OLED_Developer_ResetChip);
-                    break;
-                case IR_KEY_DOWN:
-                    Menu_navigateTo(OLED_Developer_HardPixels);
-                    break;
-                case IR_KEY_LEFT:
-                case IR_KEY_RIGHT:
-                case IR_KEY_OK:
-                    fit43Enabled = !fit43Enabled;
-                    if (fit43Enabled) {
-                        // back to the automatic frame: drop the manual horizontal scale
-                        uopt->screenHScale_ntsc = 0;
-                        uopt->screenHScale_pal = 0;
-                    }
-                    fit43Save();
-                    applyPresets(rto->videoStandardInput); // re-apply the current preset
-                    break;
-                case IR_KEY_EXIT:
-                    Menu_navigateTo(OLED_Developer);
-                    break;
-            }
-            irResume();
-        }
-        return true;
-    }
-
     // OLED_Developer_HardPixels - 6-tap horizontal filter bypass on/off (re-applies the preset)
     else if (oled_menuItem == OLED_Developer_HardPixels) {
         showMenuToggle("Developer", "Hard pixels", hardPixelsEnabled);
@@ -601,7 +562,7 @@ bool IR_handleDeveloperMenu()
                     Menu_navigateTo(OLED_Developer);
                     break;
                 case IR_KEY_UP:
-                    Menu_navigateTo(OLED_Developer_Fit43);
+                    Menu_navigateTo(OLED_Developer_ResetChip);
                     break;
                 case IR_KEY_DOWN:
                     Menu_navigateTo(OLED_Developer_MemoryAdjust);
@@ -636,7 +597,7 @@ bool IR_handleDeveloperMenu()
                     Menu_navigateTo(OLED_Developer_SOGLevel);
                     break;
                 case IR_KEY_DOWN:
-                    Menu_navigateTo(OLED_Developer_Fit43);
+                    Menu_navigateTo(OLED_Developer_HardPixels);
                     break;
                 case IR_KEY_RIGHT:
                 case IR_KEY_LEFT:

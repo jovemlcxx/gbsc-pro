@@ -4,4 +4,4 @@ __pycache__/
 *.pyc
 .vscode/
 .claude/
-*.pdf
+_workspace/

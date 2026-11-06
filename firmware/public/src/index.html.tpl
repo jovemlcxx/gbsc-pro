@@ -1263,21 +1263,6 @@
               </tr>
               <tr>
                 <td>
-                  4:3 Frame
-                  <ul class="gbs-help">
-                    <li>Keeps the picture 4:3 and centred in every output resolution.</li>
-                    <li>A manual scale (Picture Control) takes priority; turning this on again returns to the automatic frame.</li>
-                  </ul>
-                </td>
-                <td>
-                  <select gbs-fit-select style="font-size: 16px; padding: 4px 8px;">
-                    <option value="0">Off</option>
-                    <option value="1">On</option>
-                  </select>
-                </td>
-              </tr>
-              <tr>
-                <td>
                   Matched Presets
                   <ul class="gbs-help">
                     <!-- prettier-ignore -->

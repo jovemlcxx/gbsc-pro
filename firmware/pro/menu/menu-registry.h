@@ -206,7 +206,6 @@ typedef enum {
     OLED_Developer_IFAutoOffset,
     OLED_Developer_SOGLevel,
     OLED_Developer_ResetChip,
-    OLED_Developer_Fit43,
     OLED_Developer_HardPixels,
 
     // Profile/Slot Management
@@ -438,7 +437,6 @@ typedef struct {
     MENU_ITEM(OLED_Developer_IFAutoOffset,  OSD_CMD_DEV_PAGE5, 3) \
     MENU_ITEM(OLED_Developer_SOGLevel,      OSD_CMD_DEV_PAGE6, 1) \
     MENU_ITEM(OLED_Developer_ResetChip,     OSD_CMD_DEV_PAGE6, 2) \
-    MENU_ITEM(OLED_Developer_Fit43,         OSD_CMD_DEV_PAGE6, 3) \
     MENU_ITEM(OLED_Developer_HardPixels,    OSD_CMD_DEV_PAGE7, 1)
 
 // All Mapped Menu Items (for generating oledToOsdMap[])

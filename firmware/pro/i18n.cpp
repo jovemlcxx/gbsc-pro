@@ -160,7 +160,6 @@ uint8_t uiLang = LANG_EN;
     X("Oversampling", "Amostragem") \
     X("SOG Level--", "Nivel SOG--") \
     X("Hard pixels", "Pixels Duros") \
-    X("Fit 4:3", "Quadro 4:3") \
     /* ---- info / profile / misc ---- */ \
     X("--- GBS-C Pro Versions ---", "--- Versoes GBS-C Pro ---") \
     X("Format:", "Formato") \

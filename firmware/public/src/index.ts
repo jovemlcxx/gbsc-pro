@@ -2590,11 +2590,8 @@ const I18N_PT: { [en: string]: string } = {
   "Pr/V gain - change red-luma gain.": "Ganho Pr/V - altera o ganho vermelho-luma.",
   "Settings": "Configurações",
   "Language": "Idioma",
-  "4:3 Frame": "Quadro 4:3",
   Center: "Centralizar",
   "Reset scale": "Redefinir escala",
-  "A manual scale (Picture Control) takes priority; turning this on again returns to the automatic frame.": "Uma escala manual (Controle de imagem) tem prioridade; ligar esta opção de novo volta ao quadro automático.",
-  "Keeps the picture 4:3 and centred in every output resolution.": "Mantém a imagem em 4:3 e centralizada em todas as resoluções de saída.",
   "Zoom enlarges the picture so the black border that consoles draw around the game is cropped.": "O zoom amplia a imagem para cortar a borda preta que os consoles desenham ao redor do jogo.",
   "Select the language of the web page, the OLED menu and the TV menu.": "Selecione o idioma desta página, do menu OLED e do menu da TV.",
   "Matched Presets": "Presets combinados",
@@ -2752,20 +2749,6 @@ const setWebLanguage = (lang: number, persistOnDevice: boolean) => {
   }
 };
 
-const initFit = () => {
-  const select = document.querySelector("[gbs-fit-select]") as HTMLSelectElement;
-  if (!select) return;
-  select.addEventListener("change", () => {
-    fetch(`/fit?set=${select.value}&${+new Date()}`).catch(() => {});
-  });
-  fetch(`/fit?${+new Date()}`)
-    .then((r) => r.json())
-    .then((j) => {
-      select.value = String(j.level);
-    })
-    .catch(() => {});
-};
-
 const initLanguage = () => {
   const select = document.querySelector("[gbs-lang-select]") as HTMLSelectElement;
   if (select) {
@@ -2796,7 +2779,6 @@ const main = () => {
         .getAttribute("href")
     );
   initLanguage();
-  initFit();
   fetchSlotNamesAndInit();
 };
 

@@ -6,7 +6,6 @@
 #include "../osd-core.h"
 
 extern float getOutputFrameRate();
-extern uint8_t fit43Enabled;
 extern uint8_t hardPixelsEnabled;
 
 // ====================================================================================
@@ -158,8 +157,6 @@ void handle_Developer_Page6(void)
     OSD_writeStringAtRow(1, 1, "SOG Level--");
     OSD_drawDashRange(1, 12, 16);
     OSD_writeStringAtRow(2, 1, "Reset Chip");
-    OSD_writeStringAtRow(3, 1, "Fit 4:3");
-    OSD_drawDashRange(3, 8, 22);
 }
 
 void handle_Developer_Page6_Values(void)
@@ -170,7 +167,6 @@ void handle_Developer_Page6_Values(void)
     OSD_writeCharAtRow(1, 21, '-');
     OSD_writeStringAtRow(1, 22, "S:");
     OSD_displayNumber2DigitAtRow(1, rto->currentLevelSOG, 25, 24);
-    OSD_writeOnOff(3, fit43Enabled);
 }
 
 // ====================================================================================

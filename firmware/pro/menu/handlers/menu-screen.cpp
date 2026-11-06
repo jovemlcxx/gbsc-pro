@@ -370,7 +370,7 @@ bool IR_handleScreenSettings(void)
                 case IR_KEY_RIGHT:
                 case IR_KEY_LEFT:
                 case IR_KEY_OK:
-                    serialCommand = 'Q'; // back to the preset / automatic 4:3 scale and position
+                    serialCommand = 'Q'; // back to the preset / automatic scale and position
                     OSD_showOkFeedback(ROW_3);
                     break;
                 case IR_KEY_EXIT:
