@@ -3654,6 +3654,7 @@ void hardPixelsSave()
 // Source gone (console off): the DAC is powered down so the screen goes black instead of showing
 // the frozen last frame; it comes back as soon as the sync is stable again.
 static bool dacBlankedBySync = false;
+static unsigned long dacHoldSince = 0; // a preset was loaded while blanked: the screen stays black until the picture is stable (or a few seconds pass)
 static bool bootReapplyDone = false;
 static unsigned long bootReapplyAt = 0;
 volatile bool pictureReapply = false;
@@ -3789,6 +3790,9 @@ void applyDevOverrides()
 void doPostPresetLoadSteps()
 {
     //unsigned long postLoadTimer = millis();
+
+    if (dacBlankedBySync)
+        GBS::DAC_RGBS_PWDNZ::write(0); // the preset's own registers switched the DAC on: back to black until the signal is stable
 
     // adco->r_gain gets applied if uopt->enableAutoGain is set.
     if (uopt->enableAutoGain) {
@@ -4476,8 +4480,11 @@ void doPostPresetLoadSteps()
     if (!uopt->wantOutputComponent) {
         GBS::PAD_SYNC_OUT_ENZ::write(0); // enable sync out if needed
     }
-    GBS::DAC_RGBS_PWDNZ::write(1); // DAC on if needed
-    dacBlankedBySync = false;
+    if (dacBlankedBySync) {
+        dacHoldSince = millis(); // the signal came back through a new preset: no green frame while it settles, the sync watcher turns the DAC on
+    } else {
+        GBS::DAC_RGBS_PWDNZ::write(1); // DAC on if needed
+    }
     GBS::DAC_RGBS_SPD::write(0);   // 0_45 2 DAC_SVM power down disable, somehow less jailbars
     GBS::DAC_RGBS_S0ENZ::write(0); //
     GBS::DAC_RGBS_S1EN::write(1);  // these 2 also help
@@ -7006,7 +7013,7 @@ void runSyncWatcher()
             freezeVideo();
         }
 
-        if (rto->noSyncCounter == 4 && !dacBlankedBySync) {
+        if (rto->noSyncCounter >= 2 && !dacBlankedBySync) {
             GBS::DAC_RGBS_PWDNZ::write(0); // black screen while there is no signal
             dacBlankedBySync = true;
         }
@@ -7277,6 +7284,7 @@ void runSyncWatcher()
         if (dacBlankedBySync && rto->continousStableCounter >= 12) { // wait out the start-up jitter
             GBS::DAC_RGBS_PWDNZ::write(1);
             dacBlankedBySync = false;
+            dacHoldSince = 0;
         }
 
         static boolean doFullRestore = 0;
@@ -10227,6 +10235,13 @@ void loop()
         regResSeq++;
         regReqPending = false;
         SerialM.printf("reg s%u_%02X = %02X%s\n", regResSeg, regResReg, regResVal, regReqWrite ? " (written)" : "");
+    }
+
+    // safety net: never stay black after a preset load, whatever the sync watcher decides
+    if (dacBlankedBySync && dacHoldSince != 0 && (long)(millis() - dacHoldSince) >= 5000) {
+        GBS::DAC_RGBS_PWDNZ::write(1);
+        dacBlankedBySync = false;
+        dacHoldSince = 0;
     }
 
     if (!bootReapplyDone && bootReapplyAt != 0 && (long)(millis() - bootReapplyAt) >= 0) {
