@@ -3659,6 +3659,7 @@ static unsigned long bootReapplyAt = 0;
 volatile bool pictureReapply = false;
 static String otaError;                 // why the last update was refused (empty = fine)
 static unsigned long otaRestartAt = 0; // reboot after the update answered the browser
+static unsigned long otaBusyUntil = 0; // while an update is arriving the loop only serves the network (renewed by every chunk)
 
 // Called after every preset (after applyDevOverrides): the visible window is the whole screen
 // width, centred on the preset's window, and the picture is centred in it. A manual scale
@@ -9228,6 +9229,12 @@ void loop()
         lastSystemTime = millis();
     }
 
+    // An update is being received: skip the video/sync work so the network gets all the time (the page was losing the board at ~11%)
+    if (otaBusyUntil != 0 && (long)(millis() - otaBusyUntil) < 0) {
+        handleWiFi(0);
+        return;
+    }
+
     handleWiFi(0); // WiFi + OTA + WS + MDNS, checks for server enabled + started
 
     if ((millis() - lastSignalTime) >= 100) {
@@ -11556,12 +11563,15 @@ void startWebserver()
                 }
                 SerialM.println(F("[update] start"));
             }
+            otaBusyUntil = millis() + 15000;
             if (otaError.length() == 0 && len && Update.write(data, len) != len)
                 otaError = "write failed";
             if (final && otaError.length() == 0 && !Update.end(true))
                 otaError = Update.hasError() ? "checksum mismatch" : "incomplete";
             if (otaError.length() != 0 && Update.isRunning())
                 Update.end(false);
+            if (final || otaError.length() != 0)
+                otaBusyUntil = 0;
         });
 
     // Range expansion mask: GET /range -> current, GET /range?set=0..15 -> change and re-apply

@@ -276,8 +276,13 @@ const checkWebSocketServer = () => {
         }
     }
 };
+let otaSending = false; // while a firmware is being sent the board is busy: a silent websocket is expected
 const timeOutWs = () => {
     console.log("timeOutWs");
+    if (otaSending) {
+        GBSControl.wsTimeout = setTimeout(timeOutWs, 8000);
+        return;
+    }
     if (GBSControl.ws) {
         GBSControl.ws.close();
     }
@@ -2462,6 +2467,7 @@ const initUpdate = () => {
     // sends the image to the board; the board checks it, writes it and restarts
     const send = (blob, md5) => {
         busy = true;
+        otaSending = true;
         const form = new FormData();
         form.append("file", blob, "firmware.bin");
         const xhr = new XMLHttpRequest();
@@ -2472,6 +2478,7 @@ const initUpdate = () => {
         };
         xhr.onload = () => {
             busy = false;
+            otaSending = false;
             let res = {};
             try {
                 res = JSON.parse(xhr.responseText);
@@ -2486,6 +2493,7 @@ const initUpdate = () => {
         };
         xhr.onerror = () => {
             busy = false;
+            otaSending = false;
             say("Connection lost while sending the firmware. Check it by reloading the page.");
         };
         xhr.send(form);
