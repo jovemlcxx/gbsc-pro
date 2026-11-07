@@ -2536,6 +2536,62 @@ const initUpdate = () => {
             .catch(() => { });
     });
 };
+/** LEDs: a circular light behind each selected control, under the plastic, passing behind everything */
+const initLeds = () => {
+    const layer = document.createElement("div");
+    layer.className = "gbs-leds";
+    document.body.appendChild(layer);
+    const selector = [
+        ".gbs-button[active].gbs-button__menu",
+        ".gbs-button[active].gbs-button__resolution",
+        ".gbs-button[active].gbs-button__slot",
+        ".gbs-button[active][gbs-toggle]",
+        ".gbs-preferences tr[active] td.gbs-icon",
+    ].join(",");
+    let queued = false;
+    const draw = () => {
+        queued = false;
+        const loader = document.querySelector(".gbs-loader");
+        layer.textContent = "";
+        if (loader && loader.style.display !== "none")
+            return;
+        document.querySelectorAll(selector).forEach((el) => {
+            var _a;
+            let r = el.getBoundingClientRect();
+            if (r.width === 0 || r.height === 0)
+                return; // on a hidden tab
+            if (el.tagName === "TD") {
+                // a switch: the light sits behind the glyph itself, at the right of its cell
+                const glyph = document.createRange();
+                glyph.selectNodeContents(el);
+                r = glyph.getBoundingClientRect();
+            }
+            const box = (_a = el.closest(".gbs-presets, .gbs-resolution, .gbs-fieldset, .gbs-scroll")) === null || _a === void 0 ? void 0 : _a.getBoundingClientRect();
+            const cx = r.left + r.width / 2;
+            const cy = r.top + r.height / 2;
+            if (box && (cx < box.left || cx > box.right || cy < box.top || cy > box.bottom))
+                return; // scrolled out of its box
+            const led = getComputedStyle(el).getPropertyValue("--led").trim() || "60, 255, 110";
+            const radius = el.tagName === "TD" ? 46 : Math.max(r.width, r.height) * 1.3 + 60;
+            const glow = document.createElement("i");
+            glow.style.cssText = `left:${cx - radius}px;top:${cy - radius}px;width:${radius * 2}px;height:${radius * 2}px;--led:${led}`;
+            layer.appendChild(glow);
+        });
+    };
+    const queue = () => {
+        if (!queued) {
+            queued = true;
+            requestAnimationFrame(draw);
+        }
+    };
+    const root = document.querySelector(".gbs-container");
+    if (root) {
+        new MutationObserver(queue).observe(root, { attributes: true, subtree: true, childList: true });
+    }
+    document.addEventListener("scroll", queue, true);
+    window.addEventListener("resize", queue);
+    queue();
+};
 const initLanguage = () => {
     const select = document.querySelector("[gbs-lang-select]");
     if (select) {
@@ -2559,6 +2615,7 @@ const main = () => {
     GBSControl.webSocketServerUrl = `ws://${ip}:81/`;
     initLanguage();
     initUpdate();
+    initLeds();
     fetchSlotNamesAndInit();
 };
 main();

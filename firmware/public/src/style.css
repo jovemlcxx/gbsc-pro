@@ -4,7 +4,7 @@
   --color-black: black;
   --color-cod-gray-light: rgba(0, 0, 0, 0.3);
   --color-cod-gray: #000;
-  --color-mine-shaft-light: rgba(255, 255, 255, 0.07);
+  --color-mine-shaft-light: rgba(0, 0, 0, 0.28);
   --color-mine-shaft: rgba(255, 255, 255, 0.1);
   --color-primary-rgba: 255, 255, 255;
   --color-primary: #fff;
@@ -90,16 +90,24 @@ body {
 }
 
 /** main container */
-/* the case: matte frosted white plastic with a fine texture, the board showing through it out of focus */
+/* the case: the whole screen is matte frosted white plastic over the board, with a very fine texture */
+body::before {
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  background-color: rgba(255, 255, 255, 0.18);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .22 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  content: "";
+  inset: 0;
+  pointer-events: none;
+  position: fixed;
+  z-index: 0;
+}
+
 .gbs-container {
-  -webkit-backdrop-filter: blur(14px) brightness(0.9) saturate(0.7);
-  backdrop-filter: blur(14px) brightness(0.9) saturate(0.7);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.34) 0%, rgba(255, 255, 255, 0.28) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.75);
-  box-shadow: inset 0 0 24px rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.55);
   box-sizing: border-box;
   color: #fff;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -109,16 +117,7 @@ body {
   overflow: hidden;
   position: relative;
   width: 100%;
-}
-
-.gbs-container::after {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  content: "";
-  inset: 0;
-  mix-blend-mode: overlay;
-  opacity: 0.55;
-  pointer-events: none;
-  position: absolute;
+  z-index: 1;
 }
 
 /** main screen scrollable area */
@@ -147,7 +146,7 @@ body {
 /* buttons */
 .gbs-button {
   appearance: none;
-  background-color: var(--color-mine-shaft-light);
+  background-color: rgba(0, 0, 0, 0.28);
   border-radius: 4px;
   border: 1px dashed rgba(var(--color-primary-rgba), 0.4);
   color: #fff;
@@ -475,14 +474,22 @@ body {
 
 .gbs-loader {
   align-items: center;
-  background: #000 var(--pcb) center / cover no-repeat;
+  background: transparent; /* the board and the plastic are the page's own: the loader only adds its logo */
   display: flex;
+  visibility: visible;
+  z-index: 2;
   height: 100%;
   justify-content: center;
   left: 0;
   position: fixed;
   top: 0;
   width: 100%;
+}
+
+/* while loading, the controls stay out of sight but the plastic over the board is always there */
+.gbs-container:has(> .gbs-loader:not([style*="none"])) {
+  border-color: transparent;
+  visibility: hidden;
 }
 
 .gbs-loader__logo {
@@ -578,7 +585,7 @@ section[name="prompt"],
 section[name="alert"] {
   -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.55);
   bottom: 0;
   left: 0;
   position: absolute;
@@ -684,9 +691,9 @@ section[name="alert"] {
   }
 
   .gbs-menu {
-    border-bottom: 1px solid #fff;
+    border-top: 1px solid #fff;
     height: 54px;
-    order: 0;
+    order: 2;
     padding: 8px;
   }
 
@@ -717,7 +724,6 @@ section[name="alert"] {
   }
 
   .gbs-output-hide .gbs-container {
-    box-shadow: inset 0 0 24px rgba(255, 255, 255, 0.12), 0 24px 80px rgba(0, 0, 0, 0.7);
     display: flex;
     height: calc(100dvh - 64px);
     margin-top: 32px;
@@ -835,8 +841,6 @@ textarea {
 /* ---- phones: touch sized, one column of slots, no wasted margins ---- */
 @media (max-width: 414px) {
   .gbs-container {
-    -webkit-backdrop-filter: blur(7px) brightness(0.9) saturate(0.7);
-    backdrop-filter: blur(7px) brightness(0.9) saturate(0.7);
     border-left: 0;
     border-right: 0;
     height: 100dvh;
@@ -877,4 +881,229 @@ textarea {
   .gbs-fieldset {
     max-height: 80dvh;
   }
+}
+
+/* ---- LED behind whatever is selected: a white-hot core that radiates red, green or blue ----
+   blue = output (resolution, tabs, secondary actions), green = on / input, red = stored presets */
+.gbs-button[active],
+.gbs-button__secondary[active] {
+  --led: 60, 255, 110;
+  --led-x: 50%;
+  background:
+    radial-gradient(circle closest-side at var(--led-x) 50%, #fff 0, #fff 10%, rgba(var(--led), 1) 38%, rgba(var(--led), 0) 100%),
+    rgba(0, 0, 0, 0.28);
+  border: 1px solid #fff;
+  box-shadow: inset 0 0 0 1px #fff;
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.9), 0 1px 3px rgba(0, 0, 0, 0.9);
+}
+
+.gbs-menu .gbs-button[active],
+.gbs-scroll > section[name="presets"] > fieldset:nth-of-type(1) .gbs-button[active] {
+  --led: 50, 130, 255;
+}
+
+/* action buttons carry [active] as their normal look, not as a selection: no LED, a plain lit outline */
+.gbs-button[active]:not(.gbs-button__menu):not(.gbs-button__resolution):not(.gbs-button__slot):not([gbs-toggle]) {
+  background: rgba(255, 255, 255, 0.22);
+  box-shadow: inset 0 0 0 1px #fff, inset 0 0 12px rgba(255, 255, 255, 0.25);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
+}
+
+.gbs-scroll > section[name="presets"] > fieldset:nth-of-type(2) .gbs-button[active],
+#gbs-pro-cv-section .gbs-button[active] {
+  --led: 60, 255, 110;
+}
+
+.gbs-scroll > section[name="presets"] .gbs-presets .gbs-button[active] {
+  --led: 255, 50, 50;
+}
+
+/* switches that are on: the same green LED behind the switch */
+.gbs-preferences tr[active] td.gbs-icon {
+  background: radial-gradient(circle closest-side at 50% 50%, #fff 0, #fff 10%, rgb(60, 255, 110) 36%, rgba(60, 255, 110, 0.45) 68%, rgba(60, 255, 110, 0) 100%);
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.9);
+}
+
+/* the light layer: under the plastic (so it comes out frosted), above the board, behind all the controls */
+.gbs-leds {
+  inset: 0;
+  pointer-events: none;
+  position: fixed;
+  z-index: -1;
+}
+
+.gbs-leds i {
+  background: radial-gradient(circle closest-side, rgba(var(--led), 1) 0, rgba(var(--led), 0.8) 20%, rgba(var(--led), 0.4) 50%, rgba(var(--led), 0) 100%);
+  border-radius: 50% !important;
+  position: fixed;
+}
+
+/* ---- centred content: every button has its icon and text on the middle axis ---- */
+.gbs-button,
+.gbs-button__preset,
+.gbs-button__slot,
+.gbs-button__resolution,
+.gbs-button__control,
+.gbs-button__control-action {
+  align-items: center;
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  justify-content: center;
+  text-align: center;
+}
+
+.gbs-button__slot::before,
+.gbs-button__slot::after {
+  text-align: center;
+}
+
+.gbs-button__resolution {
+  flex-direction: row;
+  gap: 4px;
+}
+
+.gbs-button__control,
+.gbs-button__control-action {
+  line-height: 1.1;
+}
+
+.gbs-button .gbs-icon {
+  line-height: 1;
+}
+
+/* ---- general polish ---- */
+
+/* an area may use nearly the whole screen height before it scrolls on its own */
+.gbs-fieldset {
+  max-height: calc(100dvh - 150px);
+}
+
+@media (max-width: 414px) {
+  .gbs-fieldset {
+    max-height: calc(100dvh - 130px);
+  }
+}
+
+/* scrollbars: a thin white line, no arrows */
+.gbs-fieldset::-webkit-scrollbar-button,
+.gbs-scroll::-webkit-scrollbar-button,
+.gbs-presets::-webkit-scrollbar-button,
+.gbs-output__textarea::-webkit-scrollbar-button {
+  display: none;
+}
+
+.gbs-presets {
+  scrollbar-color: #fff transparent;
+  scrollbar-width: thin;
+}
+
+.gbs-presets::-webkit-scrollbar {
+  width: 4px;
+}
+
+.gbs-presets::-webkit-scrollbar-thumb {
+  background-color: #fff;
+}
+
+.gbs-presets::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* legends: the title sits on the outline like case print */
+.gbs-fieldset__legend {
+  letter-spacing: 0.04em;
+  padding: 0 6px;
+}
+
+/* settings tables: one ruled row per setting, labels left, switches on one right-hand axis */
+.gbs-preferences {
+  border-collapse: collapse;
+}
+
+.gbs-preferences tr {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.gbs-preferences tr:last-child {
+  border-bottom: 0;
+}
+
+.gbs-preferences td {
+  font-size: 15px;
+  padding: 9px 4px;
+  vertical-align: middle;
+}
+
+.gbs-preferences td:last-child:not([colspan]) {
+  text-align: right;
+  white-space: nowrap;
+  width: 56px;
+}
+
+/* group headings ("Active FrameTime Lock", "Deinterlace Method") and the indented settings under them */
+.gbs-preferences td.gbs-preferences__child {
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  padding-bottom: 4px;
+  padding-top: 12px;
+  text-transform: uppercase;
+}
+
+.gbs-preferences td.gbs-padding__left-16 {
+  padding-left: 22px;
+}
+
+.gbs-preferences .gbs-icon {
+  font-size: 34px;
+  line-height: 1;
+}
+
+.gbs-help {
+  font-size: 13px;
+  line-height: 17px;
+  margin: 6px 0 10px;
+  opacity: 0.85;
+}
+
+/* fields: dark glass with a white outline, white text */
+.gbs-container select,
+.gbs-container input[type="text"],
+.gbs-container input[type="password"],
+.gbs-container input:not([type]),
+.gbs-container textarea {
+  background-color: rgba(0, 0, 0, 0.35);
+  color: #fff;
+  font-family: inherit;
+}
+
+.gbs-container select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='white' stroke-width='1.6'/%3E%3C/svg%3E");
+  background-position: right 10px center;
+  background-repeat: no-repeat;
+  min-height: 38px;
+  padding: 4px 30px 4px 10px !important;
+}
+
+.gbs-container select option {
+  background: #222;
+  color: #fff;
+}
+
+.gbs-container input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* focus: the same lit outline everywhere */
+.gbs-container button:focus-visible,
+.gbs-container select:focus-visible,
+.gbs-container input:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+/* buttons: a quick press feedback */
+.gbs-button:active {
+  transform: scale(0.98);
 }
