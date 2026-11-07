@@ -2421,6 +2421,8 @@ const initLeds = () => {
         ".gbs-button[active].gbs-button__resolution",
         ".gbs-button[active].gbs-button__slot",
         ".gbs-button[active][gbs-toggle]",
+        ".gbs-button.is-lit",
+        ".gbs-button.is-blinking",
     ].join(",");
     let queued = false;
     const draw = () => {
@@ -2444,6 +2446,8 @@ const initLeds = () => {
             const w = r.width * 1.28;
             const h = r.height * 1.28;
             const glow = document.createElement("i");
+            if (el.classList.contains("is-blinking"))
+                glow.className = "is-blinking";
             glow.style.cssText = `left:${cx - w / 2}px;top:${cy - h / 2}px;width:${w}px;height:${h}px;--led:${led}`;
             layer.appendChild(glow);
         });
@@ -2461,6 +2465,29 @@ const initLeds = () => {
     document.addEventListener("scroll", queue, true);
     window.addEventListener("resize", queue);
     queue();
+};
+/** preset actions light up when touched: save green, remove red, load blinks blue while it works */
+const initPresetActions = () => {
+    const timers = new Map();
+    const light = (btn, classes, ms) => {
+        btn.classList.add(...classes);
+        window.clearTimeout(timers.get(btn));
+        timers.set(btn, window.setTimeout(() => btn.classList.remove(...classes), ms));
+    };
+    const bind = (onclick, classes, ms) => {
+        const btn = document.querySelector(`[onclick="${onclick}"]`);
+        if (!btn)
+            return;
+        btn.addEventListener("pointerdown", () => light(btn, classes, ms));
+        btn.addEventListener("click", () => light(btn, classes, ms));
+    };
+    bind("savePreset()", ["is-lit", "is-green"], 700);
+    bind("removePreset()", ["is-lit", "is-red"], 700);
+    // the board gives no "done" signal for a load: blink for the time a preset takes to apply
+    const load = document.querySelector('[onclick="loadPreset()"]');
+    if (load) {
+        load.addEventListener("click", () => light(load, ["is-blinking"], 3500));
+    }
 };
 /** custom select: the native list is replaced by the case look; the native <select> stays the source of truth */
 const enhanceSelect = (native) => {
@@ -2581,6 +2608,7 @@ const main = () => {
     document.querySelectorAll(".gbs-container select").forEach(enhanceSelect);
     initLanguage();
     initLeds();
+    initPresetActions();
     fetchSlotNamesAndInit();
 };
 main();
