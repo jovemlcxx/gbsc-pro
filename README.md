@@ -22,7 +22,7 @@ Baseado no [brisma/gbsc-pro](https://github.com/brisma/gbsc-pro), que deriva do 
 
 ## Interface Web
 
-O painel completo no navegador, em português, com uma tela por aba. Tudo o que existe nos menus da TV e do OLED também está aqui.
+A interface Web foi **refeita**, com o visual baseado no design do próprio GBSC Pro: a placa ao fundo, o plástico translúcido da caixa e LEDs que acendem atrás do controle selecionado. Está em português, com uma tela por aba, e traz tudo o que existe nos menus da TV e do OLED.
 
 <table align="center">
   <tr>
