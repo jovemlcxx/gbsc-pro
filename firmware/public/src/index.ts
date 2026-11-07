@@ -1033,7 +1033,8 @@ const fetchSlotNamesAndInit = () => {
         updateSlotNames();
         createWebSocket();
         createIntervalChecks();
-        setTimeout(hideLoading, 1000);
+        // never a blink: the logo and the spinner stay at least 0.9 s on screen
+        setTimeout(hideLoading, Math.max(300, 900 - performance.now()));
       });
     }, fetchSlotNamesErrorRetry)
     .catch(fetchSlotNamesErrorRetry);
@@ -1175,7 +1176,7 @@ const hideLoading = () => {
   // the loader fades out while the content fades in; it only leaves the layout once it is invisible
   const loader = GBSControl.ui.loader as HTMLElement;
   loader.classList.add("is-done");
-  setTimeout(() => loader.setAttribute("style", "display:none"), 600);
+  setTimeout(() => loader.setAttribute("style", "display:none"), 400);
 };
 
 const checkFetchResponseStatus = (response: Response) => {
