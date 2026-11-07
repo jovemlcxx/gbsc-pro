@@ -2423,14 +2423,17 @@ const applyWebLanguage = () => {
     });
 };
 const setWebLanguage = (lang, persistOnDevice) => {
+    var _a, _b;
     webLang = lang === 1 ? 1 : 0;
     try {
         localStorage.setItem("gbs-lang", String(webLang));
     }
     catch (e) { }
     const select = document.querySelector("[gbs-lang-select]");
-    if (select)
+    if (select) {
         select.value = String(webLang);
+        (_b = (_a = select)._sync) === null || _b === void 0 ? void 0 : _b.call(_a);
+    }
     applyWebLanguage();
     if (persistOnDevice) {
         fetch(`/lang?set=${webLang}&${+new Date()}`).catch(() => { });
@@ -2546,7 +2549,6 @@ const initLeds = () => {
         ".gbs-button[active].gbs-button__resolution",
         ".gbs-button[active].gbs-button__slot",
         ".gbs-button[active][gbs-toggle]",
-        ".gbs-preferences tr[active] td.gbs-icon",
     ].join(",");
     let queued = false;
     const draw = () => {
@@ -2557,22 +2559,16 @@ const initLeds = () => {
             return;
         document.querySelectorAll(selector).forEach((el) => {
             var _a;
-            let r = el.getBoundingClientRect();
+            const r = el.getBoundingClientRect();
             if (r.width === 0 || r.height === 0)
                 return; // on a hidden tab
-            if (el.tagName === "TD") {
-                // a switch: the light sits behind the glyph itself, at the right of its cell
-                const glyph = document.createRange();
-                glyph.selectNodeContents(el);
-                r = glyph.getBoundingClientRect();
-            }
             const box = (_a = el.closest(".gbs-presets, .gbs-resolution, .gbs-fieldset, .gbs-scroll")) === null || _a === void 0 ? void 0 : _a.getBoundingClientRect();
             const cx = r.left + r.width / 2;
             const cy = r.top + r.height / 2;
             if (box && (cx < box.left || cx > box.right || cy < box.top || cy > box.bottom))
                 return; // scrolled out of its box
             const led = getComputedStyle(el).getPropertyValue("--led").trim() || "60, 255, 110";
-            const radius = el.tagName === "TD" ? 46 : Math.max(r.width, r.height) * 1.3 + 60;
+            const radius = Math.max(r.width, r.height) * 1.3 + 60;
             const glow = document.createElement("i");
             glow.style.cssText = `left:${cx - radius}px;top:${cy - radius}px;width:${radius * 2}px;height:${radius * 2}px;--led:${led}`;
             layer.appendChild(glow);
@@ -2591,6 +2587,101 @@ const initLeds = () => {
     document.addEventListener("scroll", queue, true);
     window.addEventListener("resize", queue);
     queue();
+};
+/** custom select: the native list is replaced by the case look; the native <select> stays the source of truth */
+const enhanceSelect = (native) => {
+    native.hidden = true;
+    const wrap = document.createElement("div");
+    wrap.className = "gbs-select";
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "gbs-select__btn";
+    btn.setAttribute("aria-haspopup", "listbox");
+    btn.setAttribute("aria-expanded", "false");
+    const label = document.createElement("span");
+    const chevron = document.createElement("i");
+    chevron.className = "gbs-icon";
+    chevron.textContent = "expand_more";
+    btn.append(label, chevron);
+    wrap.appendChild(btn);
+    native.after(wrap);
+    const list = document.createElement("ul");
+    list.className = "gbs-select__list";
+    list.setAttribute("role", "listbox");
+    list.hidden = true;
+    document.body.appendChild(list);
+    let at = 0;
+    const sync = () => {
+        var _a;
+        label.textContent = ((_a = native.options[native.selectedIndex]) === null || _a === void 0 ? void 0 : _a.textContent) || "";
+        list.querySelectorAll("li").forEach((li, i) => li.setAttribute("aria-selected", String(i === native.selectedIndex)));
+    };
+    native._sync = sync;
+    [...native.options].forEach((o, i) => {
+        const li = document.createElement("li");
+        li.setAttribute("role", "option");
+        li.textContent = o.textContent;
+        li.addEventListener("click", () => pick(i));
+        list.appendChild(li);
+    });
+    const mark = () => list.querySelectorAll("li").forEach((li, i) => li.classList.toggle("is-at", i === at));
+    const close = () => {
+        list.hidden = true;
+        btn.setAttribute("aria-expanded", "false");
+        document.removeEventListener("pointerdown", outside, true);
+        window.removeEventListener("scroll", close, true);
+    };
+    const outside = (e) => {
+        if (!list.contains(e.target) && !btn.contains(e.target))
+            close();
+    };
+    const pick = (i) => {
+        if (i !== native.selectedIndex) {
+            native.selectedIndex = i;
+            native.dispatchEvent(new Event("change", { bubbles: true }));
+        }
+        sync();
+        close();
+        btn.focus();
+    };
+    const open = () => {
+        const r = btn.getBoundingClientRect();
+        list.hidden = false;
+        list.style.minWidth = `${r.width}px`;
+        const h = list.offsetHeight;
+        const below = window.innerHeight - r.bottom;
+        list.style.left = `${Math.max(4, Math.min(r.left, window.innerWidth - list.offsetWidth - 4))}px`;
+        list.style.top = `${below >= h + 8 || below >= r.top ? r.bottom + 4 : r.top - h - 4}px`;
+        at = Math.max(0, native.selectedIndex);
+        mark();
+        btn.setAttribute("aria-expanded", "true");
+        document.addEventListener("pointerdown", outside, true);
+        window.addEventListener("scroll", close, true);
+    };
+    btn.addEventListener("click", () => (list.hidden ? open() : close()));
+    btn.addEventListener("keydown", (e) => {
+        const n = native.options.length;
+        if (list.hidden) {
+            if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+                e.preventDefault();
+                open();
+            }
+            return;
+        }
+        if (e.key === "ArrowDown")
+            at = Math.min(n - 1, at + 1);
+        else if (e.key === "ArrowUp")
+            at = Math.max(0, at - 1);
+        else if (e.key === "Enter" || e.key === " ")
+            pick(at);
+        else if (e.key === "Escape")
+            close();
+        else
+            return;
+        e.preventDefault();
+        mark();
+    });
+    sync();
 };
 const initLanguage = () => {
     const select = document.querySelector("[gbs-lang-select]");
@@ -2613,6 +2704,7 @@ const main = () => {
     const ip = location.hostname;
     GBSControl.serverIP = ip;
     GBSControl.webSocketServerUrl = `ws://${ip}:81/`;
+    document.querySelectorAll(".gbs-container select").forEach(enhanceSelect);
     initLanguage();
     initUpdate();
     initLeds();

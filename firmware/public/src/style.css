@@ -791,8 +791,6 @@ textarea {
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
-  scrollbar-color: #fff transparent;
-  scrollbar-width: thin;
 }
 
 .gbs-fieldset::-webkit-scrollbar {
@@ -918,11 +916,6 @@ textarea {
   --led: 255, 50, 50;
 }
 
-/* switches that are on: the same green LED behind the switch */
-.gbs-preferences tr[active] td.gbs-icon {
-  background: radial-gradient(circle closest-side at 50% 50%, #fff 0, #fff 10%, rgb(60, 255, 110) 36%, rgba(60, 255, 110, 0.45) 68%, rgba(60, 255, 110, 0) 100%);
-  text-shadow: 0 0 4px rgba(0, 0, 0, 0.9);
-}
 
 /* the light layer: under the plastic (so it comes out frosted), above the board, behind all the controls */
 .gbs-leds {
@@ -994,8 +987,6 @@ textarea {
 }
 
 .gbs-presets {
-  scrollbar-color: #fff transparent;
-  scrollbar-width: thin;
 }
 
 .gbs-presets::-webkit-scrollbar {
@@ -1106,4 +1097,73 @@ textarea {
 /* buttons: a quick press feedback */
 .gbs-button:active {
   transform: scale(0.98);
+}
+
+/* ---- custom select ---- */
+.gbs-select {
+  display: inline-block;
+  position: relative;
+}
+
+.gbs-select__btn {
+  align-items: center;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid #fff;
+  color: #fff;
+  cursor: pointer;
+  display: inline-flex;
+  font-family: inherit;
+  font-size: 16px;
+  gap: 8px;
+  justify-content: center;
+  min-height: 38px;
+  min-width: 96px;
+  padding: 4px 8px 4px 14px;
+}
+
+.gbs-select__btn .gbs-icon {
+  font-size: 20px;
+}
+
+.gbs-select__btn[aria-expanded="true"] {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.gbs-select__list {
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  background: rgba(10, 10, 10, 0.72);
+  border: 1px solid #fff;
+  color: #fff;
+  font-family: "Oswald", sans-serif;
+  list-style: none;
+  margin: 0;
+  max-height: 50vh;
+  overflow-y: auto;
+  padding: 0;
+  position: fixed;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+  z-index: 30;
+}
+
+.gbs-select__list li {
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 11px 18px;
+  text-align: center;
+}
+
+.gbs-select__list li:first-child {
+  border-top: 0;
+}
+
+.gbs-select__list li:hover,
+.gbs-select__list li.is-at {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* the chosen option is lit with the blue LED */
+.gbs-select__list li[aria-selected="true"] {
+  background: radial-gradient(circle closest-side at 50% 50%, #fff 0, #fff 8%, rgb(50, 130, 255) 34%, rgba(50, 130, 255, 0) 100%);
 }
