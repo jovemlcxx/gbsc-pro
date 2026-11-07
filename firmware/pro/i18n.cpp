@@ -117,7 +117,6 @@ uint8_t uiLang = LANG_EN;
     X("Scale", "Escala") \
     X("Borders", "Bordas") \
     X("Full height", "Altura Total") \
-    X("Center", "Centralizar") \
     X("Reset scale", "Redefinir Escala") \
     /* ---- system ---- */ \
     X("Matched presets", "Preset Por Sinal") \

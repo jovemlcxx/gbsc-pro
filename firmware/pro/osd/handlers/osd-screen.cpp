@@ -43,8 +43,7 @@ void handle_ScreenSettings_Page2(void)
     OSD_writePageIcons(true, '2', false);
     OSD_writeStringAtRow(1, 1, "Full height");
     OSD_drawDashRange(1, 12, 22);
-    OSD_writeStringAtRow(2, 1, "Center");
-    OSD_writeStringAtRow(3, 1, "Reset scale");
+    OSD_writeStringAtRow(2, 1, "Reset scale");
 }
 
 void handle_ScreenSettings_Page2_Values(void)

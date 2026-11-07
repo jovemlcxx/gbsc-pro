@@ -2077,25 +2077,6 @@ body:has(.gbs-loader.is-done) .gbs-leds {
               </button>
             </div>
             <div class="gbs-flex gbs-margin__bottom--16">
-              <button gbs-pro-step="zm=-1" class="gbs-button gbs-button__control">
-                <div class="gbs-icon">zoom_out</div>
-                <div>Zoom out</div>
-              </button>
-              <button gbs-pro-step="zm=1" class="gbs-button gbs-button__control">
-                <div class="gbs-icon">zoom_in</div>
-                <div>Zoom in</div>
-              </button>
-            </div>
-            <div class="gbs-flex gbs-margin__bottom--16">
-              <button
-                gbs-message="U"
-                gbs-message-type="action"
-                gbs-click="normal"
-                class="gbs-button gbs-button__control"
-              >
-                <div class="gbs-icon">filter_center_focus</div>
-                <div>Center</div>
-              </button>
               <button
                 gbs-message="Q"
                 gbs-message-type="action"
@@ -2158,25 +2139,19 @@ body:has(.gbs-loader.is-done) .gbs-leds {
 
             <div class="gbs-flex">
               <button
-                gbs-message="h"
-                gbs-message-type="action"
-                gbs-click="repeat"
+                gbs-pro-step="zm=-1"
                 class="gbs-button gbs-button__control gbs-icon gbs-button__secondary"
               >
                 keyboard_arrow_left
               </button>
               <button
-                gbs-message="4"
-                gbs-message-type="action"
-                gbs-click="repeat"
+                gbs-pro-step="zm=1"
                 class="gbs-button gbs-button__control gbs-icon gbs-button__secondary"
               >
                 keyboard_arrow_up
               </button>
               <button
-                gbs-message="z"
-                gbs-message-type="action"
-                gbs-click="repeat"
+                gbs-pro-step="zm=1"
                 class="gbs-button gbs-button__control gbs-icon gbs-button__secondary"
               >
                 keyboard_arrow_right
@@ -2189,9 +2164,7 @@ body:has(.gbs-loader.is-done) .gbs-leds {
                 <div>scale</div>
               </button>
               <button
-                gbs-message="5"
-                gbs-message-type="action"
-                gbs-click="repeat"
+                gbs-pro-step="zm=-1"
                 class="gbs-button gbs-button__control gbs-icon gbs-button__secondary"
               >
                 keyboard_arrow_down
@@ -2249,25 +2222,6 @@ body:has(.gbs-loader.is-done) .gbs-leds {
               </button>
             </div>
             <div class="gbs-flex gbs-margin__bottom--16">
-              <button gbs-pro-step="zm=-1" class="gbs-button gbs-button__control">
-                <div class="gbs-icon">zoom_out</div>
-                <div>Zoom out</div>
-              </button>
-              <button gbs-pro-step="zm=1" class="gbs-button gbs-button__control">
-                <div class="gbs-icon">zoom_in</div>
-                <div>Zoom in</div>
-              </button>
-            </div>
-            <div class="gbs-flex gbs-margin__bottom--16">
-              <button
-                gbs-message="U"
-                gbs-message-type="action"
-                gbs-click="normal"
-                class="gbs-button gbs-button__control"
-              >
-                <div class="gbs-icon">filter_center_focus</div>
-                <div>Center</div>
-              </button>
               <button
                 gbs-message="Q"
                 gbs-message-type="action"
@@ -3578,11 +3532,11 @@ const GBSControl = {
             down: "/",
         },
         scale: {
-            type: "loadDoc",
-            left: "h",
-            up: "4",
-            right: "z",
-            down: "5",
+            type: "zoom",
+            left: "-1",
+            up: "1",
+            right: "1",
+            down: "-1",
         },
         borders: {
             type: "loadUser",
@@ -4765,6 +4719,9 @@ const controlClick = (control) => () => {
         case "loadUser":
             loadUser(target[controlKey]);
             break;
+        case "zoom":
+            fetch("/pro", { method: "POST", body: new URLSearchParams({ zm: target[controlKey] }) }).catch(() => { });
+            break;
     }
 };
 const controlMouseDown = (control) => () => {
@@ -5716,8 +5673,6 @@ const I18N_PT = {
     "Red gain": "Ganho de vermelho",
     "Green gain": "Ganho de verde",
     "Blue gain": "Ganho de azul",
-    "Zoom in": "Aumentar zoom",
-    "Zoom out": "Diminuir zoom",
     "Volume": "Volume",
     "Mute": "Mudo",
     "Scanlines only work with 240p sources, or 480i with Bob deinterlacing.": "As scanlines só funcionam com fontes 240p, ou 480i com desentrelaçamento Bob.",
@@ -5740,7 +5695,6 @@ const I18N_PT = {
     "Pr/V gain - change red-luma gain.": "Ganho Pr/V - altera o ganho vermelho-luma.",
     "Settings": "Configurações",
     "Language": "Idioma",
-    Center: "Centralizar",
     "Reset scale": "Redefinir escala",
     "Zoom enlarges the picture so the black border that consoles draw around the game is cropped.": "O zoom amplia a imagem para cortar a borda preta que os consoles desenham ao redor do jogo.",
     "Select the language of the web page, the OLED menu and the TV menu.": "Selecione o idioma desta página, do menu OLED e do menu da TV.",

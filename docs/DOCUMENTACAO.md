@@ -90,24 +90,18 @@ O display **OLED** e o **knob** na parte superior dão acesso ao menu sem o cont
 ### Imagem livre
 A imagem é **livre**: jogos de qualquer proporção (por exemplo, arcades em 16:9) podem ser esticados e movidos até onde você quiser. A janela visível ocupa a largura da tela, e a única limitação é a borda da linha de vídeo capturada.
 
-### Mover e esticar
-Todos os passos são de cerca de **1 pixel** por toque.
+### Mover e Escala
+Todos os passos são de cerca de **1 pixel** por toque. A escala cresce 1 pixel em cada direção (cada lado), e as escalas e posições manuais voltam ao automático quando a resolução de saída muda.
 
 | Controle | Efeito |
 |---|---|
 | **Mover** | Desloca a imagem dentro do quadro (horizontal e vertical) |
-| **Escala, horizontal** | Direita: mais largo. Esquerda: mais estreito. Cresce para a direita, com a borda esquerda fixa |
-| **Escala, vertical** | Cima: mais alto. Baixo: mais baixo. Cresce para baixo, com a borda superior fixa |
+| **Escala** | Direita ou cima: aumenta. Esquerda ou baixo: diminui. Cresce 1 pixel para cada lado, na horizontal e na vertical |
 
 As direções do controle remoto são as mesmas da Web.
 
-### Centralizar e Redefinir escala
-Ficam no menu *Ajustes de Tela* (página 2), na Web (Picture Control) e, no controle, a tecla **INFO** nas telas Mover e Escala executa o Centralizar.
-
-| Opção | Mantém o tamanho | Zera o movimento |
-|---|---|---|
-| **Centralizar** | Sim | Sim |
-| **Redefinir escala** | Não, volta ao ajuste automático | Sim |
+### Redefinir escala
+Fica no menu *Ajustes de Tela* (página 2) e na Web (Picture Control). Volta a escala e a posição ao ajuste automático.
 
 Os ajustes manuais são guardados por norma (NTSC e PAL) e reaplicados, centralizados, ao religar.
 
@@ -131,7 +125,7 @@ As scanlines vêm **ligadas e configuradas**, com intensidade 50.
 | 1280x720 | 3× | Regulares |
 | 1920x1080 | 4,5× | Regulares |
 
-Esticar a imagem na vertical fora dos fatores inteiros torna o padrão irregular. Use *Centralizar* ou *Redefinir escala* para voltar ao padrão.
+Esticar a imagem na vertical fora dos fatores inteiros torna o padrão irregular. Use *Redefinir escala* para voltar ao padrão.
 
 ### Limitações conhecidas
 - **Overlay:** o chip não tem camada gráfica para sobrepor imagens ou máscaras. O OSD da TV (STV9426) tem 28×3 caracteres.
@@ -236,7 +230,7 @@ Arquivos alterados:
 - `gbs-control.ino`: padrões e migrações, reaplicação no boot, mover e esticar, pixels duros, nitidez, endpoints e preservação dos filtros ao carregar slots.
 - `pro/gbs-control-pro.cpp`: conversão de cor.
 - `pro/drivers/stv9426.h`, `pro/osd/**`: textos traduzidos no OSD, ajuste do tracejado e menus Developer e Ajustes de Tela.
-- `pro/menu/**`: menu Idioma, ordem das resoluções, Centralizar, Redefinir escala e scanlines sempre configuráveis.
+- `pro/menu/**`: menu Idioma, ordem das resoluções, Escala, Redefinir escala e scanlines sempre configuráveis.
 - `OLEDMenuManager.*`, `OLEDMenuImplementation.cpp`: bitmaps traduzidos e item Idioma.
 - `generate_translations.py`: textos PT-BR e opção `--suffix`.
-- `public/src/*`, `webui.html`, `webui_html.h`: idioma da Web e opções *Idioma*, *Centralizar* e *Redefinir escala*.
+- `public/src/*`, `webui.html`, `webui_html.h`: idioma da Web e opções *Idioma* e *Redefinir escala*.

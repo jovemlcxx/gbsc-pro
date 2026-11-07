@@ -606,25 +606,6 @@
               </button>
             </div>
             <div class="gbs-flex gbs-margin__bottom--16">
-              <button gbs-pro-step="zm=-1" class="gbs-button gbs-button__control">
-                <div class="gbs-icon">zoom_out</div>
-                <div>Zoom out</div>
-              </button>
-              <button gbs-pro-step="zm=1" class="gbs-button gbs-button__control">
-                <div class="gbs-icon">zoom_in</div>
-                <div>Zoom in</div>
-              </button>
-            </div>
-            <div class="gbs-flex gbs-margin__bottom--16">
-              <button
-                gbs-message="U"
-                gbs-message-type="action"
-                gbs-click="normal"
-                class="gbs-button gbs-button__control"
-              >
-                <div class="gbs-icon">filter_center_focus</div>
-                <div>Center</div>
-              </button>
               <button
                 gbs-message="Q"
                 gbs-message-type="action"
@@ -687,25 +668,19 @@
 
             <div class="gbs-flex">
               <button
-                gbs-message="h"
-                gbs-message-type="action"
-                gbs-click="repeat"
+                gbs-pro-step="zm=-1"
                 class="gbs-button gbs-button__control gbs-icon gbs-button__secondary"
               >
                 keyboard_arrow_left
               </button>
               <button
-                gbs-message="4"
-                gbs-message-type="action"
-                gbs-click="repeat"
+                gbs-pro-step="zm=1"
                 class="gbs-button gbs-button__control gbs-icon gbs-button__secondary"
               >
                 keyboard_arrow_up
               </button>
               <button
-                gbs-message="z"
-                gbs-message-type="action"
-                gbs-click="repeat"
+                gbs-pro-step="zm=1"
                 class="gbs-button gbs-button__control gbs-icon gbs-button__secondary"
               >
                 keyboard_arrow_right
@@ -718,9 +693,7 @@
                 <div>scale</div>
               </button>
               <button
-                gbs-message="5"
-                gbs-message-type="action"
-                gbs-click="repeat"
+                gbs-pro-step="zm=-1"
                 class="gbs-button gbs-button__control gbs-icon gbs-button__secondary"
               >
                 keyboard_arrow_down
@@ -778,25 +751,6 @@
               </button>
             </div>
             <div class="gbs-flex gbs-margin__bottom--16">
-              <button gbs-pro-step="zm=-1" class="gbs-button gbs-button__control">
-                <div class="gbs-icon">zoom_out</div>
-                <div>Zoom out</div>
-              </button>
-              <button gbs-pro-step="zm=1" class="gbs-button gbs-button__control">
-                <div class="gbs-icon">zoom_in</div>
-                <div>Zoom in</div>
-              </button>
-            </div>
-            <div class="gbs-flex gbs-margin__bottom--16">
-              <button
-                gbs-message="U"
-                gbs-message-type="action"
-                gbs-click="normal"
-                class="gbs-button gbs-button__control"
-              >
-                <div class="gbs-icon">filter_center_focus</div>
-                <div>Center</div>
-              </button>
               <button
                 gbs-message="Q"
                 gbs-message-type="action"

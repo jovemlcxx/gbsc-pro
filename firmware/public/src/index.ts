@@ -212,11 +212,11 @@ const GBSControl = {
       down: "/",
     },
     scale: {
-      type: "loadDoc",
-      left: "h",
-      up: "4",
-      right: "z",
-      down: "5",
+      type: "zoom", // 1 pixel on every side per step
+      left: "-1",
+      up: "1",
+      right: "1",
+      down: "-1",
     },
     borders: {
       type: "loadUser",
@@ -1617,6 +1617,9 @@ const controlClick = (control: HTMLButtonElement) => () => {
     case "loadUser":
       loadUser(target[controlKey]);
       break;
+    case "zoom":
+      fetch("/pro", { method: "POST", body: new URLSearchParams({ zm: target[controlKey] }) }).catch(() => {});
+      break;
   }
 };
 
@@ -2661,8 +2664,6 @@ const I18N_PT: { [en: string]: string } = {
   "Red gain": "Ganho de vermelho",
   "Green gain": "Ganho de verde",
   "Blue gain": "Ganho de azul",
-  "Zoom in": "Aumentar zoom",
-  "Zoom out": "Diminuir zoom",
   "Volume": "Volume",
   "Mute": "Mudo",
   "Scanlines only work with 240p sources, or 480i with Bob deinterlacing.": "As scanlines só funcionam com fontes 240p, ou 480i com desentrelaçamento Bob.",
@@ -2685,7 +2686,6 @@ const I18N_PT: { [en: string]: string } = {
   "Pr/V gain - change red-luma gain.": "Ganho Pr/V - altera o ganho vermelho-luma.",
   "Settings": "Configurações",
   "Language": "Idioma",
-  Center: "Centralizar",
   "Reset scale": "Redefinir escala",
   "Zoom enlarges the picture so the black border that consoles draw around the game is cropped.": "O zoom amplia a imagem para cortar a borda preta que os consoles desenham ao redor do jogo.",
   "Select the language of the web page, the OLED menu and the TV menu.": "Selecione o idioma desta página, do menu OLED e do menu da TV.",

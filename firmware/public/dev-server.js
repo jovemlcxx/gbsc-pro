@@ -765,14 +765,14 @@ const wss = new WebSocketServer({ port: WS_PORT });
 
 let currentPreset = 1;
 let currentSlot = 'A';
-let optionByte0 = 0x01; // adcAutoGain active
+let optionByte0 = 0x06; // scanlines + line filter on, ADC auto gain off (factory defaults)
 let optionByte1 = 0x02; // frameTimeLock active
 let optionByte2 = 0x00;
 let currentInputType = 1; // 1=RGBs, 2=RGsB, 3=VGA, 4=YPbPr, 5=S-Video, 6=Composite
 let currentFormat = 0; // 0-11: Auto, PAL, NTSC-M, PAL-60, NTSC443, NTSC-J, PAL-N w/ p, PAL-M w/o p, PAL-M, PAL Cmb -N, PAL Cmb -N w/ p, SECAM
 let current2X = 0; // 0=off, 1=on
 let currentSmooth = 0; // 0=off, 1=on
-let currentSharpness = 0; // 0=off, 1=on
+let currentSharpness = 1; // 0=off, 1=on
 let currentACE = 0; // 0=off, 1=on
 let currentACELumaGain = 13; // 0-31, default 13 (0x0D)
 let currentACEChromaGain = 8; // 0-15, default 8
@@ -800,7 +800,7 @@ let currentCombChromaTapsPAL = 3;   // 3=5→4 lines
 let currentHdmiLimitedRange = 1;  // 0=Off, 1=HD, 2=SD, 3=All (default 1=HD)
 
 // Sync Stripper state
-let mockSl = 3, mockR = 128, mockG = 128, mockB = 128, mockVol = 35, mockMute = 0;
+let mockSl = 5, mockR = 128, mockG = 128, mockB = 128, mockVol = 35, mockMute = 0;
 let currentSyncStripper = 1;  // 0=Off, 1=On (default 1=On)
 
 // Helper to convert value 0-31 to hex char (0-9, A-V)

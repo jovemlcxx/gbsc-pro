@@ -2555,12 +2555,26 @@ void zoomStep(int8_t dir)
         SerialM.println("limit");
         return;
     }
-    scaleHorizontal(1, dir > 0);
-    setScreenHScale(GBS::VDS_HSCALE::read());
+    // horizontal: the width changes by 2 output pixels and the start moves 1 pixel the other way,
+    // so it grows on both sides (the plain scale step keeps the left edge)
+    uint16_t h0 = geomCurH();
+    float w = geomBase.cap * 1024.0f / h0 + dir * 2.0f / pxPerClk;
+    int16_t h = (int16_t)(geomBase.cap * 1024.0f / w + 0.5f);
+    if (h == (int16_t)h0)
+        h += dir > 0 ? -1 : 1;
+    int16_t oldMoveH = geomMoveH;
+    geomMoveH = constrain(geomMoveH - dir * (int16_t)(1.0f / pxPerClk + 0.5f), -400, 400);
+    if (!setHScaleCentred(constrain(h, 256, 1023))) {
+        geomMoveH = oldMoveH;
+        SerialM.println("limit");
+        return;
+    }
+    setScreenHScale(geomCurH());
+    setScreenHMove(geomMoveH == 0 ? 0 : GEOM_MOVE_BASE + geomMoveH);
 
     uint16_t v0 = GBS::VDS_VSCALE::read();
-    float h = lines * (float)geomBase.vScale / v0 + 2 * dir;
-    int16_t v = (int16_t)(lines * (float)geomBase.vScale / h + 0.5f);
+    float hv = lines * (float)geomBase.vScale / v0 + 2 * dir;
+    int16_t v = (int16_t)(lines * (float)geomBase.vScale / hv + 0.5f);
     if (v == (int16_t)v0)
         v += dir > 0 ? -1 : 1;
     int16_t oldMoveV = geomMoveV;
@@ -3701,6 +3715,19 @@ static void applyPicture()
     uint16_t lines, screenPx;
     if (rto->presetIsPalForce60 || !hGeomSupported(pxPerClk, lines, screenPx))
         return;
+    // a new output resolution starts with the automatic scale and position (the saved ones fit the old one)
+    static uint8_t lastOutRes = 0;
+    uint8_t outRes = rto->presetID & 0x0F;
+    if (lastOutRes && outRes != lastOutRes) {
+        uopt->screenHMove_ntsc = uopt->screenHMove_pal = 0;
+        uopt->screenHScale_ntsc = uopt->screenHScale_pal = 0;
+        uopt->screenVScale_ntsc = uopt->screenVScale_pal = 0;
+        uopt->screenVMoveSt_ntsc = uopt->screenVMoveSt_pal = 0xFFFF;
+        uopt->screenVMoveSp_ntsc = uopt->screenVMoveSp_pal = 0xFFFF;
+        geomMoveH = geomMoveV = 0;
+        saveUserPrefs();
+    }
+    lastOutRes = outRes;
     bool pal = isPalGroup();
     uint16_t manualH = pal ? uopt->screenHScale_pal : uopt->screenHScale_ntsc;
     uint16_t manualV = pal ? uopt->screenVScale_pal : uopt->screenVScale_ntsc;
@@ -10148,27 +10175,6 @@ void loop()
                 GBS::IF_HBIN_SP::write(if_hblank_scale_stop + 1);
                 SerialM.print("1_26: ");
                 SerialM.println((if_hblank_scale_stop + 1), HEX);
-            } break;
-            case 'U': {
-                // centre the picture in the frame: drop only the move offsets, keep the scale
-                bool pal = isPalGroup();
-                uint16_t &mh = pal ? uopt->screenHMove_pal : uopt->screenHMove_ntsc;
-                uint16_t &mvs = pal ? uopt->screenVMoveSt_pal : uopt->screenVMoveSt_ntsc;
-                uint16_t &mvp = pal ? uopt->screenVMoveSp_pal : uopt->screenVMoveSp_ntsc;
-                bool legacy = (mh != 0 && mh < 0x4000) || (mvs != 0xFFFF && mvs < 0x4000); // IF register moves
-                mh = 0;
-                mvs = 0xFFFF;
-                mvp = 0xFFFF;
-                geomMoveH = 0;
-                geomMoveV = 0;
-                saveUserPrefs();
-                if (legacy || !hGeomSupported()) {
-                    pictureReapply = true; // the scale is kept: manual scale is re-applied with the preset
-                } else {
-                    setHScaleCentred(geomCurH());
-                    setVScaleCentred(GBS::VDS_VSCALE::read());
-                }
-                SerialM.println(F("picture centred"));
             } break;
             case 'Q':
                 // reset scale: drop manual scale and move of this standard, back to the automatic picture

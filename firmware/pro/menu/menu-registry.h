@@ -115,7 +115,6 @@ typedef enum {
     // System Settings submenu
     OLED_SystemSettings_MatchedPresets,
     OLED_ScreenSettings_FullHeight,
-    OLED_ScreenSettings_Center,
     OLED_ScreenSettings_ResetScale,
     OLED_SystemSettings_Force5060Hz,
     OLED_SystemSettings_ClockGenerator,
@@ -345,8 +344,7 @@ typedef struct {
     MENU_ITEM(OLED_ScreenSettings_Scale,      OSD_CMD_SCREEN_PAGE1, 2) \
     MENU_ITEM(OLED_ScreenSettings_Borders,    OSD_CMD_SCREEN_PAGE1, 3) \
     MENU_ITEM(OLED_ScreenSettings_FullHeight, OSD_CMD_SCREEN_PAGE2, 1) \
-    MENU_ITEM(OLED_ScreenSettings_Center,     OSD_CMD_SCREEN_PAGE2, 2) \
-    MENU_ITEM(OLED_ScreenSettings_ResetScale, OSD_CMD_SCREEN_PAGE2, 3)
+    MENU_ITEM(OLED_ScreenSettings_ResetScale, OSD_CMD_SCREEN_PAGE2, 2)
 
 // Color Settings Menu Mappings
 #define MENU_ITEMS_COLOR \

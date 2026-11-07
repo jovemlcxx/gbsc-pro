@@ -20,6 +20,24 @@ Baseado no [brisma/gbsc-pro](https://github.com/brisma/gbsc-pro), que deriva do 
 
 [Documentação](docs/DOCUMENTACAO.md) | [Manual do GBSC Pro](https://www.retroscaler.com/?page_id=480)
 
+## Interface Web
+
+O painel completo no navegador, em português, com uma tela por aba. Tudo o que existe nos menus da TV e do OLED também está aqui.
+
+<table align="center">
+  <tr>
+    <td align="center"><img src="assets/web/1-presets.jpg" width="190" alt="Presets"><br><sub>Presets</sub></td>
+    <td align="center"><img src="assets/web/2-controle.jpg" width="190" alt="Controle de imagem"><br><sub>Controle de imagem</sub></td>
+    <td align="center"><img src="assets/web/3-filtros.jpg" width="190" alt="Filtros e cor"><br><sub>Filtros e cor</sub></td>
+    <td align="center"><img src="assets/web/4-configuracoes.jpg" width="190" alt="Configurações"><br><sub>Configurações</sub></td>
+    <td align="center"><img src="assets/web/5-sistema.jpg" width="190" alt="Sistema"><br><sub>Sistema</sub></td>
+  </tr>
+</table>
+
+- **Switches** para liga e desliga: scanlines, filtro de linha, peaking, nitidez e resposta ao degrau.
+- **Intensidade das scanlines** (00 a 50), **ganho de vermelho, verde e azul**, **volume** e **mudo** com botões − e +, segurando repete.
+- **Escala** que cresce 1 pixel para cada lado, com **Redefinir escala**.
+
 ## Scanlines
 
 As scanlines são o principal destaque deste firmware. **São totalmente novas**: não existem no firmware original, foram criadas para este projeto e **já vêm ligadas e configuradas**. O padrão segue um ciclo de 4 linhas inspirado no do OSSC, que em 960p tem exatamente 2 linhas claras e 2 escuras por linha do jogo.
@@ -56,8 +74,8 @@ O original deixava a última imagem congelada ao desligar o console e mostrava t
 
 ### Imagem
 - **Imagem livre**, para jogos de qualquer proporção. Estique e mova até onde quiser; o limite é a própria tela.
-- **Mover e esticar com passos de ~1 pixel.** O esticar horizontal cresce para a direita e o vertical para baixo.
-- **Centralizar** (mantém o tamanho) e **Redefinir escala** (volta ao ajuste automático), no menu *Ajustes de Tela*, na Web e pela tecla INFO do controle.
+- **Mover e Escala com passos de ~1 pixel.** A escala cresce 1 pixel para cada lado e volta ao automático quando a resolução de saída muda.
+- **Redefinir escala** (volta ao ajuste automático), no menu *Ajustes de Tela* e na Web.
 - Saída padrão em 1080p, com cores corretas.
 
 ### Menus
