@@ -1023,11 +1023,17 @@ const updateTerminal = () => {
 const updateViewPort = () => {
     document.documentElement.style.setProperty("--viewport-height", window.innerHeight + "px");
 };
+// resolves once the device's language is known (the text is translated before the page shows)
+let langReady = Promise.resolve();
 const hideLoading = () => {
-    // the loader fades out while the content fades in; it only leaves the layout once it is invisible
-    const loader = GBSControl.ui.loader;
-    loader.classList.add("is-done");
-    setTimeout(() => loader.setAttribute("style", "display:none"), 400);
+    // wait for the font and the language so the text does not change size or wording after it shows (1.5 s at most)
+    const settled = Promise.all([document.fonts ? document.fonts.ready : null, langReady]);
+    Promise.race([settled, new Promise((r) => setTimeout(r, 1500))]).then(() => {
+        // the loader fades out while the content fades in; it only leaves the layout once it is invisible
+        const loader = GBSControl.ui.loader;
+        loader.classList.add("is-done");
+        setTimeout(() => loader.setAttribute("style", "display:none"), 400);
+    });
 };
 const checkFetchResponseStatus = (response) => {
     if (!response.ok) {
@@ -2697,7 +2703,7 @@ const initLanguage = () => {
     catch (e) { }
     setWebLanguage(stored, false);
     // the device is the source of truth (same language on OLED, TV and web)
-    fetch(`/lang?${+new Date()}`)
+    langReady = fetch(`/lang?${+new Date()}`)
         .then((r) => r.json())
         .then((j) => setWebLanguage(j.lang, false))
         .catch(() => { });
