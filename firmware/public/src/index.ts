@@ -2780,9 +2780,9 @@ const initLeds = () => {
       const cy = r.top + r.height / 2;
       if (box && (cx < box.left || cx > box.right || cy < box.top || cy > box.bottom)) return; // scrolled out of its box
       const led = getComputedStyle(el).getPropertyValue("--led").trim() || "60, 255, 110";
-      // the light is only a little bigger than the button: about 14% past each wall
-      const w = r.width * 1.28;
-      const h = r.height * 1.28;
+      // every LED is the same round light, whatever the button: it only spills a little past a slot's top and bottom
+      const w = 100;
+      const h = 100;
       const glow = document.createElement("i");
       if (el.classList.contains("is-blinking")) glow.className = "is-blinking";
       glow.style.cssText = `left:${cx - w / 2}px;top:${cy - h / 2}px;width:${w}px;height:${h}px;--led:${led}`;

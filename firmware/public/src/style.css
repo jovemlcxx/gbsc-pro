@@ -887,7 +887,7 @@ textarea {
   --led: 60, 255, 110;
   --led-x: 50%;
   background:
-    radial-gradient(circle closest-side at var(--led-x) 50%, #fff 0, #fff 10%, rgba(var(--led), 1) 38%, rgba(var(--led), 0) 100%);
+    radial-gradient(circle at var(--led-x) 50%, #fff 0, #fff 2px, rgba(var(--led), 1) 7px, rgba(var(--led), 0.75) 14px, rgba(var(--led), 0.4) 22px, rgba(var(--led), 0.15) 30px, rgba(var(--led), 0) 38px);
   border: 1px solid #fff;
   box-shadow: inset 0 0 0 1px #fff;
   text-shadow: 0 0 4px rgba(0, 0, 0, 0.9), 0 1px 3px rgba(0, 0, 0, 0.9);
@@ -924,7 +924,7 @@ textarea {
 }
 
 .gbs-leds i {
-  background: radial-gradient(ellipse closest-side, rgba(var(--led), 1) 0, rgba(var(--led), 0.85) 30%, rgba(var(--led), 0.4) 62%, rgba(var(--led), 0) 100%);
+  background: radial-gradient(circle closest-side, rgba(var(--led), 0.95) 0, rgba(var(--led), 0.8) 14%, rgba(var(--led), 0.55) 30%, rgba(var(--led), 0.3) 50%, rgba(var(--led), 0.12) 72%, rgba(var(--led), 0.03) 90%, rgba(var(--led), 0) 100%);
   border-radius: 50% !important;
   position: fixed;
 }
@@ -1267,7 +1267,7 @@ section[name="alert"] {
 /* ---- preset actions: save lights green, remove lights red, load blinks blue while it works ---- */
 .gbs-button.is-lit,
 .gbs-button.is-blinking {
-  background: radial-gradient(circle closest-side at 50% 50%, #fff 0, #fff 10%, rgba(var(--led), 1) 38%, rgba(var(--led), 0) 100%);
+  background: radial-gradient(circle at 50% 50%, #fff 0, #fff 2px, rgba(var(--led), 1) 7px, rgba(var(--led), 0.75) 14px, rgba(var(--led), 0.4) 22px, rgba(var(--led), 0.15) 30px, rgba(var(--led), 0) 38px);
   box-shadow: inset 0 0 0 2px #fff;
 }
 
