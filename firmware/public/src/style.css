@@ -1188,3 +1188,17 @@ html::before {
     width: 100dvh;
   }
 }
+
+/* slots have a fixed size (two to a row, always the same height) so one saved preset is not stretched across the list */
+.gbs-scroll > section[name="presets"] > fieldset.presets > .gbs-presets {
+  align-content: flex-start;
+  justify-content: flex-start;
+}
+
+.gbs-button__slot {
+  flex: 0 0 calc(50% - 8px);
+  height: 56px;
+  margin: 4px;
+  min-height: 56px;
+  width: calc(50% - 8px);
+}
