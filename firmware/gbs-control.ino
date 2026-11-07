@@ -215,6 +215,10 @@ char serialCommand;               // Serial / Web Server commands
 String serialCommandBuffer = "";  // Buffering for Web Server commands
 char userCommand;               // Serial / Web Server commands
 String userCommandBuffer = "";  // Buffering for Web Server commands
+static volatile int8_t webZoomPending = 0;  // Pro: zoom / RGB gain asked by the web, applied in loop()
+static volatile bool webRgbPending = false;
+static volatile int8_t webScanPending = 0;
+void scanlineStrengthStep(int8_t dir);
 static uint8_t lastSegment = 0xFF; // GBS segment for direct access
 //uint8_t globalDelay; // used for dev / debug
 
@@ -2539,6 +2543,36 @@ void scaleVertical(uint16_t amountToScale, bool subtracting)
     SerialM.println(vscale);
     if (!setVScaleCentred(vscale))
         GBS::VDS_VSCALE::write(vscale);
+}
+
+// Pro: zoom, grows (dir > 0) or shrinks the picture by one pixel on every side:
+// 1 clock per side horizontally (scaleHorizontal), 2 lines vertically with the top edge moved 1 line
+void zoomStep(int8_t dir)
+{
+    float pxPerClk;
+    uint16_t lines, screenPx;
+    if (!hGeomSupported(pxPerClk, lines, screenPx)) {
+        SerialM.println("limit");
+        return;
+    }
+    scaleHorizontal(1, dir > 0);
+    setScreenHScale(GBS::VDS_HSCALE::read());
+
+    uint16_t v0 = GBS::VDS_VSCALE::read();
+    float h = lines * (float)geomBase.vScale / v0 + 2 * dir;
+    int16_t v = (int16_t)(lines * (float)geomBase.vScale / h + 0.5f);
+    if (v == (int16_t)v0)
+        v += dir > 0 ? -1 : 1;
+    int16_t oldMoveV = geomMoveV;
+    geomMoveV = constrain(geomMoveV - dir, -400, 400);
+    if (!setVScaleCentred(constrain(v, 128, 1023))) {
+        geomMoveV = oldMoveV;
+        SerialM.println("limit");
+        return;
+    }
+    setScreenVScale(GBS::VDS_VSCALE::read());
+    setScreenVMoveSt(geomMoveV == 0 ? 0xFFFF : GEOM_MOVE_BASE + geomMoveV);
+    setScreenVMoveSp(geomMoveV == 0 ? 0xFFFF : GEOM_MOVE_BASE + geomMoveV);
 }
 
 // modified to move VBSP, set VBST to VBSP-2
@@ -9223,12 +9257,39 @@ void loop()
         }
     }
 
+    // Pro: steps asked by the web (hold-to-repeat), the prefs are written once the buttons rest
+    static uint32_t webSaveDue = 0;
+    if (webZoomPending) {
+        int8_t z = webZoomPending;
+        webZoomPending = 0;
+        zoomStep(z);
+        webSaveDue = millis() + 1500;
+    }
+    if (webScanPending) {
+        int8_t d = webScanPending;
+        webScanPending = 0;
+        scanlineStrengthStep(d);
+    }
+    if (webRgbPending) {
+        webRgbPending = false;
+        applyRGBtoYUVConversion();
+        webSaveDue = millis() + 1500;
+    }
+    if (webSaveDue && millis() > webSaveDue) {
+        webSaveDue = 0;
+        saveUserPrefs();
+    }
+
     // Update audio volume only when changed
     if ((millis() - lastSystemTime) >= 400) {
-        static uint8_t lastVolume = 0xFF;
+        static uint8_t lastVolume = 0xFF, lastMuted = 0xFF;
         if (uopt->volume != lastVolume) {
             PT2257_setVolume(uopt->volume);
             lastVolume = uopt->volume;
+        }
+        if (uopt->audioMuted != lastMuted) {
+            PT2257_mute(uopt->audioMuted);
+            lastMuted = uopt->audioMuted;
         }
         lastSystemTime = millis();
     }
@@ -12028,6 +12089,31 @@ void startWebserver()
             } else {
                 request->send(400, "application/json", "false");
             }
+            return;
+        }
+
+        // Web parity with the TV/OLED menus: sl = scanline intensity step, gr/gg/gb = RGB gain, vol, mute, zm = zoom
+        // (the value is the step: 1 or -1; vol is 0..50; mute is 0/1)
+        if (request->hasArg("sl") || request->hasArg("gr") || request->hasArg("gg") || request->hasArg("gb")
+            || request->hasArg("vol") || request->hasArg("mute") || request->hasArg("zm")) {
+            if (request->hasArg("sl")) {
+                webScanPending = request->arg("sl").toInt() > 0 ? 1 : -1;
+            } else if (request->hasArg("zm")) {
+                webZoomPending = request->arg("zm").toInt() > 0 ? 1 : -1; // I2C work: done on the main loop
+            } else if (request->hasArg("vol")) {
+                uopt->volume = constrain(request->arg("vol").toInt(), 0, 50);
+                uopt->audioMuted = 0;
+                saveUserPrefs();
+            } else if (request->hasArg("mute")) {
+                uopt->audioMuted = request->arg("mute").toInt() ? 1 : 0;
+                saveUserPrefs();
+            } else {
+                uint8_t *g = request->hasArg("gr") ? &uopt->gbsColorR : request->hasArg("gg") ? &uopt->gbsColorG : &uopt->gbsColorB;
+                int d = request->arg(request->hasArg("gr") ? "gr" : request->hasArg("gg") ? "gg" : "gb").toInt() > 0 ? 1 : -1;
+                *g = constrain((int)*g + d, 0, 255);
+                webRgbPending = true; // applyRGBtoYUVConversion() on the main loop (I2C)
+            }
+            request->send(200, "application/json", "true");
             return;
         }
 

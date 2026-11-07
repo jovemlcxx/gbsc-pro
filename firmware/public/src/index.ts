@@ -563,6 +563,22 @@ const createWebSocket = () => {
         tapsValueEl.textContent = tapsNames[tapsVal] || "5->3";
       }
 
+      // Scanline intensity, RGB gains, volume and mute (positions 26-35, newer firmware only)
+      if (message.data.length >= 36) {
+        const hex2 = (i: number) => parseInt(message.data.substr(i, 2), 16);
+        const setTxt = (id: string, v: string) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+        setTxt("gbs-sl-val", ((parseInt(message.data[26], 10) || 0) * 10 < 10 ? "0" : "") + (parseInt(message.data[26], 10) || 0) * 10);
+        setTxt("gbs-rgb-r", String(hex2(27)));
+        setTxt("gbs-rgb-g", String(hex2(29)));
+        setTxt("gbs-rgb-b", String(hex2(31)));
+        setTxt("gbs-vol-val", String(hex2(33)));
+        const mute = document.getElementById("gbs-mute");
+        if (mute) {
+          if (message.data[35] === "1") mute.setAttribute("active", "");
+          else mute.removeAttribute("active");
+        }
+      }
+
       // Update 2X button
       const btn2x = document.getElementById("gbs-pro-2x");
       const is2XEnabled = line2xChar === "1";
@@ -579,7 +595,7 @@ const createWebSocket = () => {
       const btnSmooth = document.getElementById("gbs-pro-smooth") as HTMLButtonElement | null;
       if (btnSmooth) {
         // Disable smooth button if 2X is not enabled
-        btnSmooth.disabled = !is2XEnabled;
+        setLocked(btnSmooth, !is2XEnabled);
         btnSmooth.style.opacity = is2XEnabled ? "1" : "0.5";
 
         if (smoothChar === "1" && is2XEnabled) {
@@ -615,7 +631,7 @@ const createWebSocket = () => {
       // Update Sharpness & Peaking Lock
       const isSharpnessActive = sharpnessChar === '1';
 
-      const btnSharpness = document.querySelector('[gbs-toggle="sharpness"]');
+      const btnSharpness = document.querySelector('[gbs-toggle-switch="sharpness"]');
       if (btnSharpness) {
         if (isSharpnessActive) {
           btnSharpness.setAttribute("active", "");
@@ -625,14 +641,14 @@ const createWebSocket = () => {
       }
 
       // Peaking is locked (disabled) when Sharpness is active
-      const btnPeaking = document.querySelector('[gbs-toggle="peaking"]') as HTMLButtonElement | null;
+      const btnPeaking = document.querySelector('[gbs-toggle-switch="peaking"]') as HTMLElement | null;
       if (btnPeaking) {
         if (isSharpnessActive) {
-          btnPeaking.disabled = true;
+          setLocked(btnPeaking, true);
           btnPeaking.style.opacity = "0.5";
           btnPeaking.removeAttribute("active"); // Also remove active state if Sharpness locks it
         } else {
-          btnPeaking.disabled = false;
+          setLocked(btnPeaking, false);
           btnPeaking.style.opacity = "1";
         }
       }
@@ -1694,6 +1710,55 @@ const initGBSButtons = () => {
   });
 };
 
+// Switch cells that have an id (2X, Smooth, ACE, Mute): their icon and row follow the "active" attribute
+const initSwitchCells = () => {
+  const obs = new MutationObserver((list) =>
+    list.forEach((m) => {
+      const el = m.target as HTMLElement;
+      const on = el.hasAttribute("active");
+      el.textContent = on ? "toggle_on" : "toggle_off";
+      if (el.parentElement) {
+        if (on) el.parentElement.setAttribute("active", "");
+        else el.parentElement.removeAttribute("active");
+      }
+    })
+  );
+  document.querySelectorAll("[gbs-sw]").forEach((el) => obs.observe(el, { attributes: true, attributeFilter: ["active"] }));
+  const mute = document.getElementById("gbs-mute");
+  if (mute)
+    mute.addEventListener("click", () => {
+      const body = new URLSearchParams();
+      body.append("mute", mute.hasAttribute("active") ? "0" : "1");
+      fetch("/pro", { method: "POST", body }).catch(() => {});
+    });
+};
+
+// +/- buttons that post one step to /pro (scanline intensity, RGB gain, volume, zoom); holding repeats
+const initProSteps = () => {
+  document.querySelectorAll<HTMLElement>("[gbs-pro-step]").forEach((btn) => {
+    const [key, val] = (btn.getAttribute("gbs-pro-step") as string).split("=");
+    const send = () => {
+      const body = new URLSearchParams();
+      if (key === "vol") {
+        const cur = parseInt(document.getElementById("gbs-vol-val")?.textContent || "35", 10);
+        body.append("vol", String(Math.max(0, Math.min(50, cur + parseInt(val, 10)))));
+      } else {
+        body.append(key, val);
+      }
+      fetch("/pro", { method: "POST", body }).catch(() => {});
+    };
+    let timer = 0;
+    const stop = () => { clearInterval(timer); timer = 0; };
+    btn.addEventListener("pointerdown", (e) => {
+      e.preventDefault();
+      send();
+      stop();
+      timer = window.setInterval(send, key === "vol" ? 160 : 250);
+    });
+    ["pointerup", "pointerleave", "pointercancel"].forEach((ev) => btn.addEventListener(ev, stop));
+  });
+};
+
 const initProButtons = () => {
   const proButtons = document.querySelectorAll("[gbs-pro-i]");
 
@@ -1785,14 +1850,14 @@ const initProButtons = () => {
               btn2x.setAttribute("active", "");
               // Enable Smooth button when 2X is on
               if (btnSmooth) {
-                btnSmooth.disabled = false;
+                setLocked(btnSmooth, false);
                 btnSmooth.style.opacity = "1";
               }
             } else {
               btn2x.removeAttribute("active");
               // Disable Smooth button and deactivate when 2X is off
               if (btnSmooth) {
-                btnSmooth.disabled = true;
+                setLocked(btnSmooth, true);
                 btnSmooth.style.opacity = "0.5";
                 btnSmooth.removeAttribute("active");
               }
@@ -2323,6 +2388,11 @@ const initSlotButtons = () => {
   ) as HTMLElement[];
 };
 
+const setLocked = (el: HTMLElement, locked: boolean) => {
+  if (locked) el.setAttribute("disabled", "");
+  else el.removeAttribute("disabled");
+};
+
 const initUIElements = () => {
   GBSControl.ui = {
     terminal: document.getElementById("outputTextArea"),
@@ -2499,6 +2569,8 @@ const initUI = () => {
   initMenuButtons();
   initGBSButtons();
   initProButtons();
+  initSwitchCells();
+  initProSteps();
   initClearButton();
   initCustomI2C();
   initVideoFilters();
@@ -2580,15 +2652,28 @@ const I18N_PT: { [en: string]: string } = {
   "borders": "bordas",
   "Filters": "Filtros",
   "scanlines": "scanlines",
+  "Scanlines": "Scanlines",
+  "Scanline intensity": "Intensidade das scanlines",
+  "Line filter": "Filtro de linha",
+  "Peaking": "Peaking",
+  "Sharpness": "Nitidez",
+  "Step response": "Resposta ao degrau",
+  "Red gain": "Ganho de vermelho",
+  "Green gain": "Ganho de verde",
+  "Blue gain": "Ganho de azul",
+  "Zoom in": "Aumentar zoom",
+  "Zoom out": "Diminuir zoom",
+  "Volume": "Volume",
+  "Mute": "Mudo",
+  "Scanlines only work with 240p sources, or 480i with Bob deinterlacing.": "As scanlines só funcionam com fontes 240p, ou 480i com desentrelaçamento Bob.",
+  "Line Filter eliminates blocky-pixel artifacts when upscaling beyond 480p, and is recommended.": "O filtro de linha elimina artefatos de pixels quadrados ao ampliar além de 480p e é recomendado.",
+  "Peaking increases contrast around horizontal brightness steps, and is recommended.": "O peaking aumenta o contraste nas transições horizontais de brilho e é recomendado.",
+  "Step Response increases the sharpness of horizontal color steps, and is recommended.": "A resposta ao degrau aumenta a nitidez das transições horizontais de cor e é recomendada.",
   "intensity": "intensidade",
   "line filter": "filtro de linha",
-  "Scanlines only work with 240p sources, or 480i with Bob deinterlacing.": "Scanlines só funcionam com fontes 240p, ou 480i com desentrelaçamento Bob.",
-  "Line Filter eliminates blocky-pixel artifacts when upscaling beyond 480p, and is recommended.": "O Filtro de linha elimina artefatos de pixels quadrados ao ampliar acima de 480p e é recomendado.",
   "peaking": "peaking",
   "sharpness": "nitidez",
   "step response": "resposta ao degrau",
-  "Peaking increases contrast around horizontal brightness steps, and is recommended.": "O Peaking aumenta o contraste ao redor de degraus horizontais de brilho e é recomendado.",
-  "Step Response increases the sharpness of horizontal color steps, and is recommended.": "A Resposta ao degrau aumenta a nitidez de degraus horizontais de cor e é recomendada.",
   "Сolor correction": "Correção de cor",
   "Brightness": "Brilho",
   "Contrast": "Contraste",

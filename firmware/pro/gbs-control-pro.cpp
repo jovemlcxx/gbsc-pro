@@ -596,7 +596,8 @@ void broadcastProStatus(WebSocketsServer& ws)
     // Positions: 0=$ 1=input 2=format 3=i2p 4=smooth 5=sharpness 6=ace 7=luma 8=chroma 9=chromamax 10=gamma 11=response
     //            12=yFilter 13=cFilter 14=wyFilter 15=wyOverride 16=comb 17=hdmiLimitedRange 18=syncStripper
     //            19=combLumaN 20=combChromaN 21=combTapsN 22=combLumaP 23=combChromaP 24=combTapsP 25=hue
-    constexpr size_t MESSAGE_LEN = 26;
+    //            26=scanline strength 0-5, 27-28 R gain, 29-30 G gain, 31-32 B gain (hex), 33-34 volume 0-50 (hex), 35 mute
+    constexpr size_t MESSAGE_LEN = 36;
     char buffer[MESSAGE_LEN];
     buffer[0] = '$';
 
@@ -647,6 +648,14 @@ void broadcastProStatus(WebSocketsServer& ws)
     buffer[23] = toHexChar16(uopt->advCombChromaModePAL);   // 0,4-7 Chroma mode PAL
     buffer[24] = toHexChar16(uopt->advCombChromaTapsPAL);   // 0-3 Chroma taps PAL
     buffer[25] = toHexChar32(uopt->advHue >> 3);            // 0-254 -> 0-31 -> hex char
+
+    buffer[26] = '0' + (uopt->scanlineStrength >> 4);
+    const uint8_t two[] = {uopt->gbsColorR, uopt->gbsColorG, uopt->gbsColorB, uopt->volume};
+    for (uint8_t i = 0; i < 4; i++) {
+        buffer[27 + 2 * i] = toHexChar16(two[i] >> 4);
+        buffer[28 + 2 * i] = toHexChar16(two[i] & 15);
+    }
+    buffer[35] = '0' + (uopt->audioMuted ? 1 : 0);
 
     ws.broadcastTXT(buffer, MESSAGE_LEN);
 }

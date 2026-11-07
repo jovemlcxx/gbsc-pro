@@ -320,6 +320,21 @@ const handleRequest = (req, res) => {
       const i = parseInt(params.get('i'));
       const f = parseInt(params.get('f'));
 
+      // Web parity controls: scanline intensity, RGB gain, volume, mute, zoom
+      const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+      if (params.has('sl')) mockSl = clamp(mockSl + (parseInt(params.get('sl')) > 0 ? 1 : -1), 0, 5);
+      else if (params.has('gr')) mockR = clamp(mockR + (parseInt(params.get('gr')) > 0 ? 1 : -1), 0, 255);
+      else if (params.has('gg')) mockG = clamp(mockG + (parseInt(params.get('gg')) > 0 ? 1 : -1), 0, 255);
+      else if (params.has('gb')) mockB = clamp(mockB + (parseInt(params.get('gb')) > 0 ? 1 : -1), 0, 255);
+      else if (params.has('vol')) { mockVol = clamp(parseInt(params.get('vol')), 0, 50); mockMute = 0; }
+      else if (params.has('mute')) mockMute = parseInt(params.get('mute')) ? 1 : 0;
+      if (['sl', 'gr', 'gg', 'gb', 'vol', 'mute', 'zm'].some((k) => params.has(k))) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end('true');
+        broadcastStatus();
+        return;
+      }
+
       // Handle input source selection
       if (!isNaN(i)) {
         const inputNames = ['', 'RGBs', 'RGsB', 'VGA', 'YPbPr', 'S-Video', 'Composite'];
@@ -785,6 +800,7 @@ let currentCombChromaTapsPAL = 3;   // 3=5→4 lines
 let currentHdmiLimitedRange = 1;  // 0=Off, 1=HD, 2=SD, 3=All (default 1=HD)
 
 // Sync Stripper state
+let mockSl = 3, mockR = 128, mockG = 128, mockB = 128, mockVol = 35, mockMute = 0;
 let currentSyncStripper = 1;  // 0=Off, 1=On (default 1=On)
 
 // Helper to convert value 0-31 to hex char (0-9, A-V)
@@ -820,7 +836,8 @@ const buildProStatusMessage = () => {
          `${toHexChar16(currentACEResponseSpeed)}` +
          `${toHexChar32(currentFilterY)}${toHexChar16(currentFilterC)}` +
          `${toHexChar16(currentFilterWY)}${currentFilterWYOverride}${toHexChar16(currentFilterCombPAL)}` +
-         `${currentHdmiLimitedRange}${currentSyncStripper}`;
+         `${currentHdmiLimitedRange}${currentSyncStripper}` + '002003G' +
+         `${mockSl}${[mockR, mockG, mockB, mockVol].map((v) => v.toString(16).toUpperCase().padStart(2, '0')).join('')}${mockMute}`;
 };
 
 // Broadcast status to all connected WebSocket clients

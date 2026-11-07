@@ -236,34 +236,12 @@
                 <div class="gbs-icon">tv</div>
                 <div>Auto</div>
               </button>
-              <button
-                id="gbs-pro-2x"
-                gbs-pro-toggle="2x"
-                class="gbs-button gbs-button__control gbs-button__secondary"
-                style="flex: 1;"
-              >
-                <div class="gbs-icon">filter_2</div>
-                <div>2X</div>
-              </button>
-              <button
-                id="gbs-pro-smooth"
-                gbs-pro-toggle="smooth"
-                class="gbs-button gbs-button__control gbs-button__secondary"
-                style="flex: 1;"
-              >
-                <div class="gbs-icon">blur_on</div>
-                <div>Smooth</div>
-              </button>
-              <button
-                id="gbs-pro-ace"
-                gbs-pro-toggle="ace"
-                class="gbs-button gbs-button__control gbs-button__secondary"
-                style="flex: 1;"
-              >
-                <div class="gbs-icon">wb_sunny</div>
-                <div>ACE</div>
-              </button>
             </div>
+            <table class="gbs-preferences">
+                <tr><td>2X</td><td id="gbs-pro-2x" gbs-pro-toggle="2x" gbs-sw class="gbs-icon">toggle_off</td></tr>
+                <tr><td>Smooth</td><td id="gbs-pro-smooth" gbs-pro-toggle="smooth" gbs-sw class="gbs-icon">toggle_off</td></tr>
+                <tr><td>ACE</td><td id="gbs-pro-ace" gbs-pro-toggle="ace" gbs-sw class="gbs-icon">toggle_off</td></tr>
+            </table>
           </fieldset>
           <fieldset id="gbs-pro-ace-section" class="gbs-fieldset" style="padding: 8px 2px; display: none;">
             <legend class="gbs-fieldset__legend gbs-fieldset__legend--help">
@@ -628,6 +606,16 @@
               </button>
             </div>
             <div class="gbs-flex gbs-margin__bottom--16">
+              <button gbs-pro-step="zm=-1" class="gbs-button gbs-button__control">
+                <div class="gbs-icon">zoom_out</div>
+                <div>Zoom out</div>
+              </button>
+              <button gbs-pro-step="zm=1" class="gbs-button gbs-button__control">
+                <div class="gbs-icon">zoom_in</div>
+                <div>Zoom in</div>
+              </button>
+            </div>
+            <div class="gbs-flex gbs-margin__bottom--16">
               <button
                 gbs-message="U"
                 gbs-message-type="action"
@@ -787,6 +775,16 @@
               </button>
               <button class="gbs-button gbs-button__control gbs-icon" disabled>
                 south_east
+              </button>
+            </div>
+            <div class="gbs-flex gbs-margin__bottom--16">
+              <button gbs-pro-step="zm=-1" class="gbs-button gbs-button__control">
+                <div class="gbs-icon">zoom_out</div>
+                <div>Zoom out</div>
+              </button>
+              <button gbs-pro-step="zm=1" class="gbs-button gbs-button__control">
+                <div class="gbs-icon">zoom_in</div>
+                <div>Zoom in</div>
               </button>
             </div>
             <div class="gbs-flex gbs-margin__bottom--16">
@@ -978,80 +976,43 @@
               <div class="gbs-icon">blur_on</div>
               <div>Filters</div>
             </legend>
-            <div class="gbs-margin__bottom--16">
-              <div class="gbs-flex gbs-margin__bottom--16">
-                <button
-                  gbs-message="7"
-                  gbs-message-type="user"
-                  gbs-click="normal"
-                  gbs-toggle="scanlines"
-                  class="gbs-button gbs-button__control gbs-button__secondary"
-                >
-                  <div class="gbs-icon">gradient</div>
-                  <div>scanlines</div>
-                </button>
-                <button
-                  gbs-message="K"
-                  gbs-message-type="user"
-                  gbs-click="normal"
-                  class="gbs-button gbs-button__control"
-                >
-                  <div class="gbs-icon">gradientbolt</div>
-                  <div>intensity</div>
-                </button>
-                <button
-                  gbs-message="m"
-                  gbs-message-type="user"
-                  gbs-click="normal"
-                  gbs-toggle="vdsLineFilter"
-                  class="gbs-button gbs-button__control gbs-button__secondary"
-                >
-                  <div class="gbs-icon">power_input</div>
-                  <div>line filter</div>
-                </button>
-              </div>
-              <ul class="gbs-help">
-                <!-- prettier-ignore -->
-                <li>Scanlines only work with 240p sources, or 480i with Bob deinterlacing.</li>
-                <li>Line Filter eliminates blocky-pixel artifacts when upscaling beyond 480p, and is recommended.</li>
-              </ul>
-              <div class="gbs-flex">
-                <button
-                  gbs-message="f"
-                  gbs-message-type="action"
-                  gbs-click="normal"
-                  gbs-toggle="peaking"
-                  class="gbs-button gbs-button__control gbs-button__secondary"
-                >
-                  <div class="gbs-icon">blur_linear</div>
-                  <div>peaking</div>
-                </button>
-                <button
-                  gbs-message="W"
-                  gbs-message-type="user"
-                  gbs-click="normal"
-                  gbs-toggle="sharpness"
-                  class="gbs-button gbs-button__control gbs-button__secondary"
-                >
-                  <div class="gbs-icon">blur_linearbolt</div>
-                  <div>sharpness</div>
-                </button>
-                <button
-                  gbs-message="V"
-                  gbs-message-type="action"
-                  gbs-click="normal"
-                  gbs-toggle="step"
-                  class="gbs-button gbs-button__control gbs-button__secondary"
-                >
-                  <div class="gbs-icon">grain</div>
-                  <div>step response</div>
-                </button>
-              </div>
-              <ul class="gbs-help">
-                <!-- prettier-ignore -->
-                <li>Peaking increases contrast around horizontal brightness steps, and is recommended.</li>
-                <li>Step Response increases the sharpness of horizontal color steps, and is recommended.</li>
-              </ul>
+            <table class="gbs-preferences">
+                <tr>
+                  <td>Scanlines</td>
+                  <td gbs-message="7" gbs-message-type="user" gbs-click="normal" class="gbs-icon" gbs-toggle-switch="scanlines">toggle_off</td>
+                </tr>
+                <tr>
+                  <td>Scanline intensity</td>
+                  <td class="gbs-stepper">
+                    <button gbs-pro-step="sl=-1" class="gbs-button gbs-icon gbs-button__secondary">remove</button>
+                    <span id="gbs-sl-val">00</span>
+                    <button gbs-pro-step="sl=1" class="gbs-button gbs-icon gbs-button__secondary">add</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Line filter</td>
+                  <td gbs-message="m" gbs-message-type="user" gbs-click="normal" class="gbs-icon" gbs-toggle-switch="vdsLineFilter">toggle_off</td>
+                </tr>
+                <tr>
+                  <td>Peaking</td>
+                  <td gbs-message="f" gbs-message-type="action" gbs-click="normal" class="gbs-icon" gbs-sw gbs-toggle-switch="peaking">toggle_off</td>
+                </tr>
+                <tr>
+                  <td>Sharpness</td>
+                  <td gbs-message="W" gbs-message-type="user" gbs-click="normal" class="gbs-icon" gbs-sw gbs-toggle-switch="sharpness">toggle_off</td>
+                </tr>
+                <tr>
+                  <td>Step response</td>
+                  <td gbs-message="V" gbs-message-type="action" gbs-click="normal" class="gbs-icon" gbs-toggle-switch="step">toggle_off</td>
+                </tr>
+            </table>
+            <ul class="gbs-help">
+              <!-- prettier-ignore -->
+              <li>Scanlines only work with 240p sources, or 480i with Bob deinterlacing.</li>
+              <li>Line Filter eliminates blocky-pixel artifacts when upscaling beyond 480p, and is recommended.</li>
+              <li>Peaking increases contrast around horizontal brightness steps, and is recommended.</li>
+              <li>Step Response increases the sharpness of horizontal color steps, and is recommended.</li>
+            </ul>
           </fieldset>
           <fieldset class="gbs-fieldset filters">
             <legend class="gbs-fieldset__legend gbs-fieldset__legend--help">
@@ -1138,6 +1099,32 @@
                 <div>Pr/V gain</div>
               </button>
             </div>
+            <table class="gbs-preferences">
+                <tr>
+                  <td>Red gain</td>
+                  <td class="gbs-stepper">
+                    <button gbs-pro-step="gr=-1" class="gbs-button gbs-icon gbs-button__secondary">remove</button>
+                    <span id="gbs-rgb-r">128</span>
+                    <button gbs-pro-step="gr=1" class="gbs-button gbs-icon gbs-button__secondary">add</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Green gain</td>
+                  <td class="gbs-stepper">
+                    <button gbs-pro-step="gg=-1" class="gbs-button gbs-icon gbs-button__secondary">remove</button>
+                    <span id="gbs-rgb-g">128</span>
+                    <button gbs-pro-step="gg=1" class="gbs-button gbs-icon gbs-button__secondary">add</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Blue gain</td>
+                  <td class="gbs-stepper">
+                    <button gbs-pro-step="gb=-1" class="gbs-button gbs-icon gbs-button__secondary">remove</button>
+                    <span id="gbs-rgb-b">128</span>
+                    <button gbs-pro-step="gb=1" class="gbs-button gbs-icon gbs-button__secondary">add</button>
+                  </td>
+                </tr>
+            </table>
             <div class="gbs-flex">
               <button
                 gbs-message="O"
@@ -1186,6 +1173,18 @@
                     <option value="1">PT-BR</option>
                   </select>
                 </td>
+              </tr>
+              <tr>
+                <td>Volume</td>
+                <td class="gbs-stepper">
+                  <button gbs-pro-step="vol=-1" class="gbs-button gbs-icon gbs-button__secondary">remove</button>
+                  <span id="gbs-vol-val">35</span>
+                  <button gbs-pro-step="vol=1" class="gbs-button gbs-icon gbs-button__secondary">add</button>
+                </td>
+              </tr>
+              <tr>
+                <td>Mute</td>
+                <td id="gbs-mute" gbs-pro-toggle="mute" gbs-sw class="gbs-icon">toggle_off</td>
               </tr>
               <tr>
                 <td>

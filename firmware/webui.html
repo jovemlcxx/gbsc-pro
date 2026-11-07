@@ -1447,6 +1447,36 @@ body:has(.gbs-loader.is-done) .gbs-leds {
   }
 }
 
+/* +/- steppers inside settings tables (scanline intensity, gains, volume) */
+.gbs-stepper {
+  text-align: right !important;
+  white-space: nowrap;
+}
+
+.gbs-stepper .gbs-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  margin: 0;
+  padding: 0;
+  vertical-align: middle;
+  width: 40px;
+}
+
+.gbs-stepper span {
+  display: inline-block;
+  min-width: 48px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+/* switch cells held off by another setting (Smooth without 2X, Peaking with Sharpness) */
+.gbs-preferences td[gbs-sw][disabled] {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
     </style>
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <link rel="icon" type="image/png" href="data:image/png;base64,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" />
@@ -1677,34 +1707,12 @@ body:has(.gbs-loader.is-done) .gbs-leds {
                 <div class="gbs-icon">tv</div>
                 <div>Auto</div>
               </button>
-              <button
-                id="gbs-pro-2x"
-                gbs-pro-toggle="2x"
-                class="gbs-button gbs-button__control gbs-button__secondary"
-                style="flex: 1;"
-              >
-                <div class="gbs-icon">filter_2</div>
-                <div>2X</div>
-              </button>
-              <button
-                id="gbs-pro-smooth"
-                gbs-pro-toggle="smooth"
-                class="gbs-button gbs-button__control gbs-button__secondary"
-                style="flex: 1;"
-              >
-                <div class="gbs-icon">blur_on</div>
-                <div>Smooth</div>
-              </button>
-              <button
-                id="gbs-pro-ace"
-                gbs-pro-toggle="ace"
-                class="gbs-button gbs-button__control gbs-button__secondary"
-                style="flex: 1;"
-              >
-                <div class="gbs-icon">wb_sunny</div>
-                <div>ACE</div>
-              </button>
             </div>
+            <table class="gbs-preferences">
+                <tr><td>2X</td><td id="gbs-pro-2x" gbs-pro-toggle="2x" gbs-sw class="gbs-icon">toggle_off</td></tr>
+                <tr><td>Smooth</td><td id="gbs-pro-smooth" gbs-pro-toggle="smooth" gbs-sw class="gbs-icon">toggle_off</td></tr>
+                <tr><td>ACE</td><td id="gbs-pro-ace" gbs-pro-toggle="ace" gbs-sw class="gbs-icon">toggle_off</td></tr>
+            </table>
           </fieldset>
           <fieldset id="gbs-pro-ace-section" class="gbs-fieldset" style="padding: 8px 2px; display: none;">
             <legend class="gbs-fieldset__legend gbs-fieldset__legend--help">
@@ -2069,6 +2077,16 @@ body:has(.gbs-loader.is-done) .gbs-leds {
               </button>
             </div>
             <div class="gbs-flex gbs-margin__bottom--16">
+              <button gbs-pro-step="zm=-1" class="gbs-button gbs-button__control">
+                <div class="gbs-icon">zoom_out</div>
+                <div>Zoom out</div>
+              </button>
+              <button gbs-pro-step="zm=1" class="gbs-button gbs-button__control">
+                <div class="gbs-icon">zoom_in</div>
+                <div>Zoom in</div>
+              </button>
+            </div>
+            <div class="gbs-flex gbs-margin__bottom--16">
               <button
                 gbs-message="U"
                 gbs-message-type="action"
@@ -2228,6 +2246,16 @@ body:has(.gbs-loader.is-done) .gbs-leds {
               </button>
               <button class="gbs-button gbs-button__control gbs-icon" disabled>
                 south_east
+              </button>
+            </div>
+            <div class="gbs-flex gbs-margin__bottom--16">
+              <button gbs-pro-step="zm=-1" class="gbs-button gbs-button__control">
+                <div class="gbs-icon">zoom_out</div>
+                <div>Zoom out</div>
+              </button>
+              <button gbs-pro-step="zm=1" class="gbs-button gbs-button__control">
+                <div class="gbs-icon">zoom_in</div>
+                <div>Zoom in</div>
               </button>
             </div>
             <div class="gbs-flex gbs-margin__bottom--16">
@@ -2419,80 +2447,43 @@ body:has(.gbs-loader.is-done) .gbs-leds {
               <div class="gbs-icon">blur_on</div>
               <div>Filters</div>
             </legend>
-            <div class="gbs-margin__bottom--16">
-              <div class="gbs-flex gbs-margin__bottom--16">
-                <button
-                  gbs-message="7"
-                  gbs-message-type="user"
-                  gbs-click="normal"
-                  gbs-toggle="scanlines"
-                  class="gbs-button gbs-button__control gbs-button__secondary"
-                >
-                  <div class="gbs-icon">gradient</div>
-                  <div>scanlines</div>
-                </button>
-                <button
-                  gbs-message="K"
-                  gbs-message-type="user"
-                  gbs-click="normal"
-                  class="gbs-button gbs-button__control"
-                >
-                  <div class="gbs-icon">gradientbolt</div>
-                  <div>intensity</div>
-                </button>
-                <button
-                  gbs-message="m"
-                  gbs-message-type="user"
-                  gbs-click="normal"
-                  gbs-toggle="vdsLineFilter"
-                  class="gbs-button gbs-button__control gbs-button__secondary"
-                >
-                  <div class="gbs-icon">power_input</div>
-                  <div>line filter</div>
-                </button>
-              </div>
-              <ul class="gbs-help">
-                <!-- prettier-ignore -->
-                <li>Scanlines only work with 240p sources, or 480i with Bob deinterlacing.</li>
-                <li>Line Filter eliminates blocky-pixel artifacts when upscaling beyond 480p, and is recommended.</li>
-              </ul>
-              <div class="gbs-flex">
-                <button
-                  gbs-message="f"
-                  gbs-message-type="action"
-                  gbs-click="normal"
-                  gbs-toggle="peaking"
-                  class="gbs-button gbs-button__control gbs-button__secondary"
-                >
-                  <div class="gbs-icon">blur_linear</div>
-                  <div>peaking</div>
-                </button>
-                <button
-                  gbs-message="W"
-                  gbs-message-type="user"
-                  gbs-click="normal"
-                  gbs-toggle="sharpness"
-                  class="gbs-button gbs-button__control gbs-button__secondary"
-                >
-                  <div class="gbs-icon">blur_linearbolt</div>
-                  <div>sharpness</div>
-                </button>
-                <button
-                  gbs-message="V"
-                  gbs-message-type="action"
-                  gbs-click="normal"
-                  gbs-toggle="step"
-                  class="gbs-button gbs-button__control gbs-button__secondary"
-                >
-                  <div class="gbs-icon">grain</div>
-                  <div>step response</div>
-                </button>
-              </div>
-              <ul class="gbs-help">
-                <!-- prettier-ignore -->
-                <li>Peaking increases contrast around horizontal brightness steps, and is recommended.</li>
-                <li>Step Response increases the sharpness of horizontal color steps, and is recommended.</li>
-              </ul>
+            <table class="gbs-preferences">
+                <tr>
+                  <td>Scanlines</td>
+                  <td gbs-message="7" gbs-message-type="user" gbs-click="normal" class="gbs-icon" gbs-toggle-switch="scanlines">toggle_off</td>
+                </tr>
+                <tr>
+                  <td>Scanline intensity</td>
+                  <td class="gbs-stepper">
+                    <button gbs-pro-step="sl=-1" class="gbs-button gbs-icon gbs-button__secondary">remove</button>
+                    <span id="gbs-sl-val">00</span>
+                    <button gbs-pro-step="sl=1" class="gbs-button gbs-icon gbs-button__secondary">add</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Line filter</td>
+                  <td gbs-message="m" gbs-message-type="user" gbs-click="normal" class="gbs-icon" gbs-toggle-switch="vdsLineFilter">toggle_off</td>
+                </tr>
+                <tr>
+                  <td>Peaking</td>
+                  <td gbs-message="f" gbs-message-type="action" gbs-click="normal" class="gbs-icon" gbs-sw gbs-toggle-switch="peaking">toggle_off</td>
+                </tr>
+                <tr>
+                  <td>Sharpness</td>
+                  <td gbs-message="W" gbs-message-type="user" gbs-click="normal" class="gbs-icon" gbs-sw gbs-toggle-switch="sharpness">toggle_off</td>
+                </tr>
+                <tr>
+                  <td>Step response</td>
+                  <td gbs-message="V" gbs-message-type="action" gbs-click="normal" class="gbs-icon" gbs-toggle-switch="step">toggle_off</td>
+                </tr>
+            </table>
+            <ul class="gbs-help">
+              <!-- prettier-ignore -->
+              <li>Scanlines only work with 240p sources, or 480i with Bob deinterlacing.</li>
+              <li>Line Filter eliminates blocky-pixel artifacts when upscaling beyond 480p, and is recommended.</li>
+              <li>Peaking increases contrast around horizontal brightness steps, and is recommended.</li>
+              <li>Step Response increases the sharpness of horizontal color steps, and is recommended.</li>
+            </ul>
           </fieldset>
           <fieldset class="gbs-fieldset filters">
             <legend class="gbs-fieldset__legend gbs-fieldset__legend--help">
@@ -2579,6 +2570,32 @@ body:has(.gbs-loader.is-done) .gbs-leds {
                 <div>Pr/V gain</div>
               </button>
             </div>
+            <table class="gbs-preferences">
+                <tr>
+                  <td>Red gain</td>
+                  <td class="gbs-stepper">
+                    <button gbs-pro-step="gr=-1" class="gbs-button gbs-icon gbs-button__secondary">remove</button>
+                    <span id="gbs-rgb-r">128</span>
+                    <button gbs-pro-step="gr=1" class="gbs-button gbs-icon gbs-button__secondary">add</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Green gain</td>
+                  <td class="gbs-stepper">
+                    <button gbs-pro-step="gg=-1" class="gbs-button gbs-icon gbs-button__secondary">remove</button>
+                    <span id="gbs-rgb-g">128</span>
+                    <button gbs-pro-step="gg=1" class="gbs-button gbs-icon gbs-button__secondary">add</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Blue gain</td>
+                  <td class="gbs-stepper">
+                    <button gbs-pro-step="gb=-1" class="gbs-button gbs-icon gbs-button__secondary">remove</button>
+                    <span id="gbs-rgb-b">128</span>
+                    <button gbs-pro-step="gb=1" class="gbs-button gbs-icon gbs-button__secondary">add</button>
+                  </td>
+                </tr>
+            </table>
             <div class="gbs-flex">
               <button
                 gbs-message="O"
@@ -2627,6 +2644,18 @@ body:has(.gbs-loader.is-done) .gbs-leds {
                     <option value="1">PT-BR</option>
                   </select>
                 </td>
+              </tr>
+              <tr>
+                <td>Volume</td>
+                <td class="gbs-stepper">
+                  <button gbs-pro-step="vol=-1" class="gbs-button gbs-icon gbs-button__secondary">remove</button>
+                  <span id="gbs-vol-val">35</span>
+                  <button gbs-pro-step="vol=1" class="gbs-button gbs-icon gbs-button__secondary">add</button>
+                </td>
+              </tr>
+              <tr>
+                <td>Mute</td>
+                <td id="gbs-mute" gbs-pro-toggle="mute" gbs-sw class="gbs-icon">toggle_off</td>
               </tr>
               <tr>
                 <td>
@@ -3863,6 +3892,24 @@ const createWebSocket = () => {
                 const tapsNames = isNTSCSignal ? combTapsNamesNTSC : combTapsNamesPAL;
                 tapsValueEl.textContent = tapsNames[tapsVal] || "5->3";
             }
+            // Scanline intensity, RGB gains, volume and mute (positions 26-35, newer firmware only)
+            if (message.data.length >= 36) {
+                const hex2 = (i) => parseInt(message.data.substr(i, 2), 16);
+                const setTxt = (id, v) => { const e = document.getElementById(id); if (e)
+                    e.textContent = v; };
+                setTxt("gbs-sl-val", ((parseInt(message.data[26], 10) || 0) * 10 < 10 ? "0" : "") + (parseInt(message.data[26], 10) || 0) * 10);
+                setTxt("gbs-rgb-r", String(hex2(27)));
+                setTxt("gbs-rgb-g", String(hex2(29)));
+                setTxt("gbs-rgb-b", String(hex2(31)));
+                setTxt("gbs-vol-val", String(hex2(33)));
+                const mute = document.getElementById("gbs-mute");
+                if (mute) {
+                    if (message.data[35] === "1")
+                        mute.setAttribute("active", "");
+                    else
+                        mute.removeAttribute("active");
+                }
+            }
             // Update 2X button
             const btn2x = document.getElementById("gbs-pro-2x");
             const is2XEnabled = line2xChar === "1";
@@ -3878,7 +3925,7 @@ const createWebSocket = () => {
             const btnSmooth = document.getElementById("gbs-pro-smooth");
             if (btnSmooth) {
                 // Disable smooth button if 2X is not enabled
-                btnSmooth.disabled = !is2XEnabled;
+                setLocked(btnSmooth, !is2XEnabled);
                 btnSmooth.style.opacity = is2XEnabled ? "1" : "0.5";
                 if (smoothChar === "1" && is2XEnabled) {
                     btnSmooth.setAttribute("active", "");
@@ -3915,7 +3962,7 @@ const createWebSocket = () => {
                 responseValueSpan.textContent = fromHexChar(responseSpeedChar).toString();
             // Update Sharpness & Peaking Lock
             const isSharpnessActive = sharpnessChar === '1';
-            const btnSharpness = document.querySelector('[gbs-toggle="sharpness"]');
+            const btnSharpness = document.querySelector('[gbs-toggle-switch="sharpness"]');
             if (btnSharpness) {
                 if (isSharpnessActive) {
                     btnSharpness.setAttribute("active", "");
@@ -3925,15 +3972,15 @@ const createWebSocket = () => {
                 }
             }
             // Peaking is locked (disabled) when Sharpness is active
-            const btnPeaking = document.querySelector('[gbs-toggle="peaking"]');
+            const btnPeaking = document.querySelector('[gbs-toggle-switch="peaking"]');
             if (btnPeaking) {
                 if (isSharpnessActive) {
-                    btnPeaking.disabled = true;
+                    setLocked(btnPeaking, true);
                     btnPeaking.style.opacity = "0.5";
                     btnPeaking.removeAttribute("active"); // Also remove active state if Sharpness locks it
                 }
                 else {
-                    btnPeaking.disabled = false;
+                    setLocked(btnPeaking, false);
                     btnPeaking.style.opacity = "1";
                 }
             }
@@ -4784,6 +4831,55 @@ const initGBSButtons = () => {
         }
     });
 };
+// Switch cells that have an id (2X, Smooth, ACE, Mute): their icon and row follow the "active" attribute
+const initSwitchCells = () => {
+    const obs = new MutationObserver((list) => list.forEach((m) => {
+        const el = m.target;
+        const on = el.hasAttribute("active");
+        el.textContent = on ? "toggle_on" : "toggle_off";
+        if (el.parentElement) {
+            if (on)
+                el.parentElement.setAttribute("active", "");
+            else
+                el.parentElement.removeAttribute("active");
+        }
+    }));
+    document.querySelectorAll("[gbs-sw]").forEach((el) => obs.observe(el, { attributes: true, attributeFilter: ["active"] }));
+    const mute = document.getElementById("gbs-mute");
+    if (mute)
+        mute.addEventListener("click", () => {
+            const body = new URLSearchParams();
+            body.append("mute", mute.hasAttribute("active") ? "0" : "1");
+            fetch("/pro", { method: "POST", body }).catch(() => { });
+        });
+};
+// +/- buttons that post one step to /pro (scanline intensity, RGB gain, volume, zoom); holding repeats
+const initProSteps = () => {
+    document.querySelectorAll("[gbs-pro-step]").forEach((btn) => {
+        const [key, val] = btn.getAttribute("gbs-pro-step").split("=");
+        const send = () => {
+            var _a;
+            const body = new URLSearchParams();
+            if (key === "vol") {
+                const cur = parseInt(((_a = document.getElementById("gbs-vol-val")) === null || _a === void 0 ? void 0 : _a.textContent) || "35", 10);
+                body.append("vol", String(Math.max(0, Math.min(50, cur + parseInt(val, 10)))));
+            }
+            else {
+                body.append(key, val);
+            }
+            fetch("/pro", { method: "POST", body }).catch(() => { });
+        };
+        let timer = 0;
+        const stop = () => { clearInterval(timer); timer = 0; };
+        btn.addEventListener("pointerdown", (e) => {
+            e.preventDefault();
+            send();
+            stop();
+            timer = window.setInterval(send, key === "vol" ? 160 : 250);
+        });
+        ["pointerup", "pointerleave", "pointercancel"].forEach((ev) => btn.addEventListener(ev, stop));
+    });
+};
 const initProButtons = () => {
     const proButtons = document.querySelectorAll("[gbs-pro-i]");
     proButtons.forEach((button) => {
@@ -4861,7 +4957,7 @@ const initProButtons = () => {
                         btn2x.setAttribute("active", "");
                         // Enable Smooth button when 2X is on
                         if (btnSmooth) {
-                            btnSmooth.disabled = false;
+                            setLocked(btnSmooth, false);
                             btnSmooth.style.opacity = "1";
                         }
                     }
@@ -4869,7 +4965,7 @@ const initProButtons = () => {
                         btn2x.removeAttribute("active");
                         // Disable Smooth button and deactivate when 2X is off
                         if (btnSmooth) {
-                            btnSmooth.disabled = true;
+                            setLocked(btnSmooth, true);
                             btnSmooth.style.opacity = "0.5";
                             btnSmooth.removeAttribute("active");
                         }
@@ -5368,6 +5464,12 @@ const initSlotButtons = () => {
     GBSControl.ui.slotContainer.innerHTML = getSlotsHTML();
     GBSControl.ui.slotButtonList = nodelistToArray(document.querySelectorAll('[gbs-role="slot"]'));
 };
+const setLocked = (el, locked) => {
+    if (locked)
+        el.setAttribute("disabled", "");
+    else
+        el.removeAttribute("disabled");
+};
 const initUIElements = () => {
     GBSControl.ui = {
         terminal: document.getElementById("outputTextArea"),
@@ -5524,6 +5626,8 @@ const initUI = () => {
     initMenuButtons();
     initGBSButtons();
     initProButtons();
+    initSwitchCells();
+    initProSteps();
     initClearButton();
     initCustomI2C();
     initVideoFilters();
@@ -5603,15 +5707,28 @@ const I18N_PT = {
     "borders": "bordas",
     "Filters": "Filtros",
     "scanlines": "scanlines",
+    "Scanlines": "Scanlines",
+    "Scanline intensity": "Intensidade das scanlines",
+    "Line filter": "Filtro de linha",
+    "Peaking": "Peaking",
+    "Sharpness": "Nitidez",
+    "Step response": "Resposta ao degrau",
+    "Red gain": "Ganho de vermelho",
+    "Green gain": "Ganho de verde",
+    "Blue gain": "Ganho de azul",
+    "Zoom in": "Aumentar zoom",
+    "Zoom out": "Diminuir zoom",
+    "Volume": "Volume",
+    "Mute": "Mudo",
+    "Scanlines only work with 240p sources, or 480i with Bob deinterlacing.": "As scanlines só funcionam com fontes 240p, ou 480i com desentrelaçamento Bob.",
+    "Line Filter eliminates blocky-pixel artifacts when upscaling beyond 480p, and is recommended.": "O filtro de linha elimina artefatos de pixels quadrados ao ampliar além de 480p e é recomendado.",
+    "Peaking increases contrast around horizontal brightness steps, and is recommended.": "O peaking aumenta o contraste nas transições horizontais de brilho e é recomendado.",
+    "Step Response increases the sharpness of horizontal color steps, and is recommended.": "A resposta ao degrau aumenta a nitidez das transições horizontais de cor e é recomendada.",
     "intensity": "intensidade",
     "line filter": "filtro de linha",
-    "Scanlines only work with 240p sources, or 480i with Bob deinterlacing.": "Scanlines só funcionam com fontes 240p, ou 480i com desentrelaçamento Bob.",
-    "Line Filter eliminates blocky-pixel artifacts when upscaling beyond 480p, and is recommended.": "O Filtro de linha elimina artefatos de pixels quadrados ao ampliar acima de 480p e é recomendado.",
     "peaking": "peaking",
     "sharpness": "nitidez",
     "step response": "resposta ao degrau",
-    "Peaking increases contrast around horizontal brightness steps, and is recommended.": "O Peaking aumenta o contraste ao redor de degraus horizontais de brilho e é recomendado.",
-    "Step Response increases the sharpness of horizontal color steps, and is recommended.": "A Resposta ao degrau aumenta a nitidez de degraus horizontais de cor e é recomendada.",
     "Сolor correction": "Correção de cor",
     "Brightness": "Brilho",
     "Contrast": "Contraste",
