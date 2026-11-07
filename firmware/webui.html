@@ -481,6 +481,8 @@ body::before {
 
 .gbs-loader {
   align-items: center;
+  flex-direction: column;
+  gap: 30px;
   background: transparent; /* the board and the plastic are the page's own: the loader only adds its logo */
   display: flex;
   visibility: visible;
@@ -1336,6 +1338,23 @@ section[name="alert"] {
 @keyframes gbs-led-glow {
   50% {
     opacity: 0.1;
+  }
+}
+
+/* loading spinner under the logo */
+.gbs-loader__spinner {
+  animation: gbs-spin 0.9s linear infinite;
+  border: 2px solid rgba(255, 255, 255, 0.28);
+  border-radius: 50% !important;
+  border-top-color: #fff;
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.5));
+  height: 34px;
+  width: 34px;
+}
+
+@keyframes gbs-spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 
@@ -3250,7 +3269,7 @@ section[name="alert"] {
           </fieldset>
         </div>
       </div>
-      <div class="gbs-loader"><div class="gbs-loader__logo"></div></div>
+      <div class="gbs-loader"><div class="gbs-loader__logo"></div><div class="gbs-loader__spinner" role="progressbar" aria-label="Loading"></div></div>
     </div>
     <div class="gbs-wifi-warning" id="websocketWarning">
       <div class="gbs-icon blink_me">signal_wifi_off</div>

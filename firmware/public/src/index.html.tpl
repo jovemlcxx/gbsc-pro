@@ -1917,7 +1917,7 @@
           </fieldset>
         </div>
       </div>
-      <div class="gbs-loader"><div class="gbs-loader__logo"></div></div>
+      <div class="gbs-loader"><div class="gbs-loader__logo"></div><div class="gbs-loader__spinner" role="progressbar" aria-label="Loading"></div></div>
     </div>
     <div class="gbs-wifi-warning" id="websocketWarning">
       <div class="gbs-icon blink_me">signal_wifi_off</div>
