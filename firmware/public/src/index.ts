@@ -2781,10 +2781,11 @@ const initLeds = () => {
       if (box && (cx < box.left || cx > box.right || cy < box.top || cy > box.bottom)) return; // scrolled out of its box
       const led = getComputedStyle(el).getPropertyValue("--led").trim() || "60, 255, 110";
       // every LED is the same round light, whatever the button: it only spills a little past a slot's top and bottom
-      const w = 100;
-      const h = 100;
+      const w = 150;
+      const h = 150;
       const glow = document.createElement("i");
       if (el.classList.contains("is-blinking")) glow.className = "is-blinking";
+      else if (el.classList.contains("is-lit")) glow.className = "is-fading";
       glow.style.cssText = `left:${cx - w / 2}px;top:${cy - h / 2}px;width:${w}px;height:${h}px;--led:${led}`;
       layer.appendChild(glow);
     });
@@ -2819,7 +2820,7 @@ const initPresetActions = () => {
     btn.addEventListener("pointerdown", () => light(btn, classes, ms));
     btn.addEventListener("click", () => light(btn, classes, ms));
   };
-  bind("savePreset()", ["is-lit", "is-green"], 700);
+  bind("savePreset()", ["is-lit", "is-green"], 700); // the fade-out in CSS lasts as long
   bind("removePreset()", ["is-lit", "is-red"], 700);
   // the board gives no "done" signal for a load: blink for the time a preset takes to apply
   const load = document.querySelector('[onclick="loadPreset()"]') as HTMLElement | null;

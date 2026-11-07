@@ -894,7 +894,7 @@ textarea {
   --led: 60, 255, 110;
   --led-x: 50%;
   background:
-    radial-gradient(circle at var(--led-x) 50%, #fff 0, #fff 2px, rgba(var(--led), 1) 7px, rgba(var(--led), 0.75) 14px, rgba(var(--led), 0.4) 22px, rgba(var(--led), 0.15) 30px, rgba(var(--led), 0) 38px);
+    radial-gradient(circle at var(--led-x) 50%, #fff 0, #fff 3px, rgba(var(--led), 1) 10.5px, rgba(var(--led), 0.75) 21px, rgba(var(--led), 0.4) 33px, rgba(var(--led), 0.15) 45px, rgba(var(--led), 0) 57px);
   border: 1px solid #fff;
   box-shadow: inset 0 0 0 1px #fff;
   text-shadow: 0 0 4px rgba(0, 0, 0, 0.9), 0 1px 3px rgba(0, 0, 0, 0.9);
@@ -1272,9 +1272,15 @@ section[name="alert"] {
 }
 
 /* ---- preset actions: save lights green, remove lights red, load blinks blue while it works ---- */
+@property --led-a {
+  inherits: false;
+  initial-value: 1;
+  syntax: "<number>";
+}
+
 .gbs-button.is-lit,
 .gbs-button.is-blinking {
-  background: radial-gradient(circle at 50% 50%, #fff 0, #fff 2px, rgba(var(--led), 1) 7px, rgba(var(--led), 0.75) 14px, rgba(var(--led), 0.4) 22px, rgba(var(--led), 0.15) 30px, rgba(var(--led), 0) 38px);
+  background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, var(--led-a)) 0, rgba(255, 255, 255, var(--led-a)) 3px, rgba(var(--led), var(--led-a)) 10.5px, rgba(var(--led), calc(var(--led-a) * 0.75)) 21px, rgba(var(--led), calc(var(--led-a) * 0.4)) 33px, rgba(var(--led), calc(var(--led-a) * 0.15)) 45px, rgba(var(--led), 0) 57px);
   box-shadow: inset 0 0 0 2px #fff;
 }
 
@@ -1286,9 +1292,25 @@ section[name="alert"] {
   --led: 255, 50, 50;
 }
 
+/* save and remove: on at once, then fading out */
+.gbs-button.is-lit {
+  animation: gbs-led-fade 0.7s ease-out forwards;
+}
+
+@keyframes gbs-led-fade {
+  from {
+    --led-a: 1;
+  }
+
+  to {
+    --led-a: 0;
+  }
+}
+
+/* load: a quick blue blink while it works */
 .gbs-button.is-blinking {
   --led: 50, 130, 255;
-  animation: gbs-led-blink 0.7s steps(1) infinite;
+  animation: gbs-led-blink 0.16s steps(1) infinite;
 }
 
 @keyframes gbs-led-blink {
@@ -1297,8 +1319,18 @@ section[name="alert"] {
   }
 }
 
+.gbs-leds i.is-fading {
+  animation: gbs-glow-fade 0.7s ease-out forwards;
+}
+
+@keyframes gbs-glow-fade {
+  to {
+    opacity: 0;
+  }
+}
+
 .gbs-leds i.is-blinking {
-  animation: gbs-led-glow 0.7s steps(1) infinite;
+  animation: gbs-led-glow 0.16s steps(1) infinite;
 }
 
 @keyframes gbs-led-glow {
@@ -5669,11 +5701,13 @@ const initLeds = () => {
                 return; // scrolled out of its box
             const led = getComputedStyle(el).getPropertyValue("--led").trim() || "60, 255, 110";
             // every LED is the same round light, whatever the button: it only spills a little past a slot's top and bottom
-            const w = 100;
-            const h = 100;
+            const w = 150;
+            const h = 150;
             const glow = document.createElement("i");
             if (el.classList.contains("is-blinking"))
                 glow.className = "is-blinking";
+            else if (el.classList.contains("is-lit"))
+                glow.className = "is-fading";
             glow.style.cssText = `left:${cx - w / 2}px;top:${cy - h / 2}px;width:${w}px;height:${h}px;--led:${led}`;
             layer.appendChild(glow);
         });
@@ -5707,7 +5741,7 @@ const initPresetActions = () => {
         btn.addEventListener("pointerdown", () => light(btn, classes, ms));
         btn.addEventListener("click", () => light(btn, classes, ms));
     };
-    bind("savePreset()", ["is-lit", "is-green"], 700);
+    bind("savePreset()", ["is-lit", "is-green"], 700); // the fade-out in CSS lasts as long
     bind("removePreset()", ["is-lit", "is-red"], 700);
     // the board gives no "done" signal for a load: blink for the time a preset takes to apply
     const load = document.querySelector('[onclick="loadPreset()"]');
