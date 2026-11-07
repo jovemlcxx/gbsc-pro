@@ -2539,7 +2539,7 @@ const initUpdate = () => {
             .catch(() => { });
     });
 };
-/** LEDs: a circular light behind each selected control, under the plastic, passing behind everything */
+/** LEDs: a light behind each selected control, over the board and the plastic, under every control */
 const initLeds = () => {
     const layer = document.createElement("div");
     layer.className = "gbs-leds";
@@ -2568,9 +2568,11 @@ const initLeds = () => {
             if (box && (cx < box.left || cx > box.right || cy < box.top || cy > box.bottom))
                 return; // scrolled out of its box
             const led = getComputedStyle(el).getPropertyValue("--led").trim() || "60, 255, 110";
-            const radius = Math.max(r.width, r.height) * 1.3 + 60;
+            // the light is only a little bigger than the button: about 14% past each wall
+            const w = r.width * 1.28;
+            const h = r.height * 1.28;
             const glow = document.createElement("i");
-            glow.style.cssText = `left:${cx - radius}px;top:${cy - radius}px;width:${radius * 2}px;height:${radius * 2}px;--led:${led}`;
+            glow.style.cssText = `left:${cx - w / 2}px;top:${cy - h / 2}px;width:${w}px;height:${h}px;--led:${led}`;
             layer.appendChild(glow);
         });
     };

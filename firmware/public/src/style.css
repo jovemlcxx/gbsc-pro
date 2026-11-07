@@ -68,7 +68,7 @@ html {
 }
 
 body {
-  background: #000 var(--pcb) center / cover no-repeat fixed;
+  background: #000;
   color: #fff;
   font-family: "Oswald", sans-serif;
   height: 100%;
@@ -888,8 +888,7 @@ textarea {
   --led: 60, 255, 110;
   --led-x: 50%;
   background:
-    radial-gradient(circle closest-side at var(--led-x) 50%, #fff 0, #fff 10%, rgba(var(--led), 1) 38%, rgba(var(--led), 0) 100%),
-    rgba(0, 0, 0, 0.28);
+    radial-gradient(circle closest-side at var(--led-x) 50%, #fff 0, #fff 10%, rgba(var(--led), 1) 38%, rgba(var(--led), 0) 100%);
   border: 1px solid #fff;
   box-shadow: inset 0 0 0 1px #fff;
   text-shadow: 0 0 4px rgba(0, 0, 0, 0.9), 0 1px 3px rgba(0, 0, 0, 0.9);
@@ -917,16 +916,16 @@ textarea {
 }
 
 
-/* the light layer: under the plastic (so it comes out frosted), above the board, behind all the controls */
+/* the light layer: right above the board and the plastic, below every control, so nothing filters it */
 .gbs-leds {
   inset: 0;
   pointer-events: none;
   position: fixed;
-  z-index: -1;
+  z-index: 0;
 }
 
 .gbs-leds i {
-  background: radial-gradient(circle closest-side, rgba(var(--led), 1) 0, rgba(var(--led), 0.8) 20%, rgba(var(--led), 0.4) 50%, rgba(var(--led), 0) 100%);
+  background: radial-gradient(ellipse closest-side, rgba(var(--led), 1) 0, rgba(var(--led), 0.85) 30%, rgba(var(--led), 0.4) 62%, rgba(var(--led), 0) 100%);
   border-radius: 50% !important;
   position: fixed;
 }
@@ -1166,4 +1165,26 @@ textarea {
 /* the chosen option is lit with the blue LED */
 .gbs-select__list li[aria-selected="true"] {
   background: radial-gradient(circle closest-side at 50% 50%, #fff 0, #fff 8%, rgb(50, 130, 255) 34%, rgba(50, 130, 255, 0) 100%);
+}
+
+/* the board: always whole, never cropped. On a phone held upright it is turned a quarter so its long side runs down the screen */
+html::before {
+  background: var(--pcb) center / contain no-repeat;
+  content: "";
+  inset: 0;
+  pointer-events: none;
+  position: fixed;
+  z-index: -2;
+}
+
+@media (orientation: portrait) {
+  html::before {
+    height: 100vw;
+    inset: auto;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) rotate(90deg);
+    width: 100vh;
+    width: 100dvh;
+  }
 }
