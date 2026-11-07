@@ -33,7 +33,7 @@
 
 #define GBS_FW_VERSION "2.4.1"  // GBS Control firmware version (ESP8266)
 #define ADV_FW_VERSION "2.4.1"  // ADV Controller firmware version (HC32)
-#define GBSC_PRO_FW_VERSION "1.2.12"  // this firmware (jovemlcxx), checked by the Web UI update
+#define GBSC_PRO_FW_VERSION "1.2.13"  // this firmware (jovemlcxx), checked by the Web UI update
 
 // ====================================================================================
 // Registry Headers (types and enums)
