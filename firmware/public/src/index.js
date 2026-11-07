@@ -1005,7 +1005,10 @@ const updateViewPort = () => {
     document.documentElement.style.setProperty("--viewport-height", window.innerHeight + "px");
 };
 const hideLoading = () => {
-    GBSControl.ui.loader.setAttribute("style", "display:none");
+    // the loader fades out while the content fades in; it only leaves the layout once it is invisible
+    const loader = GBSControl.ui.loader;
+    loader.classList.add("is-done");
+    setTimeout(() => loader.setAttribute("style", "display:none"), 600);
 };
 const checkFetchResponseStatus = (response) => {
     if (!response.ok) {
@@ -1365,14 +1368,21 @@ const initMenuButtons = () => {
     const sections = nodelistToArray(document.querySelectorAll("section"));
     const scroll = document.querySelector(".gbs-scroll");
     menuButtons.forEach((button) => button.addEventListener("click", () => {
-        const section = button.getAttribute("gbs-section");
-        sections.forEach((section) => section.setAttribute("hidden", ""));
-        document
-            .querySelector(`section[name="${section}"]`)
-            .removeAttribute("hidden");
+        const name = button.getAttribute("gbs-section");
+        const target = document.querySelector(`section[name="${name}"]`);
+        const current = sections.find((s) => !s.hasAttribute("hidden") && s.getAttribute("name") !== "prompt" && s.getAttribute("name") !== "alert");
         menuButtons.forEach((btn) => btn.removeAttribute("active"));
         button.setAttribute("active", "");
-        scroll.scrollTo(0, 1);
+        if (current === target)
+            return;
+        // the page fades out (the LEDs with it), then the next one fades in
+        document.body.classList.add("gbs-switching");
+        window.setTimeout(() => {
+            sections.forEach((s) => s.setAttribute("hidden", ""));
+            target.removeAttribute("hidden");
+            scroll.scrollTo(0, 1);
+            document.body.classList.remove("gbs-switching");
+        }, current ? 140 : 0);
     }));
 };
 const initGBSButtons = () => {
@@ -2429,7 +2439,7 @@ const initLeds = () => {
         queued = false;
         const loader = document.querySelector(".gbs-loader");
         layer.textContent = "";
-        if (loader && loader.style.display !== "none")
+        if (loader && !loader.classList.contains("is-done"))
             return;
         document.querySelectorAll(selector).forEach((el) => {
             var _a;

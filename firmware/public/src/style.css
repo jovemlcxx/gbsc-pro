@@ -474,6 +474,7 @@ body::before {
 
 .gbs-loader {
   align-items: center;
+  transition: opacity 0.5s ease;
   flex-direction: column;
   gap: 30px;
   background: transparent; /* the board and the plastic are the page's own: the loader only adds its logo */
@@ -489,7 +490,7 @@ body::before {
 }
 
 /* while loading, the controls stay out of sight but the plastic over the board is always there */
-.gbs-container:has(> .gbs-loader:not([style*="none"])) {
+.gbs-container:has(> .gbs-loader:not(.is-done)) {
   border-color: transparent;
   visibility: hidden;
 }
@@ -1349,4 +1350,45 @@ section[name="alert"] {
   to {
     transform: rotate(360deg);
   }
+}
+
+/* ---- fades: loading to content, and page to page ---- */
+.gbs-loader.is-done {
+  opacity: 0;
+  pointer-events: none;
+}
+
+@keyframes gbs-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* the content comes in as the loader goes out */
+.gbs-container:has(> .gbs-loader.is-done) > :not(.gbs-loader) {
+  animation: gbs-fade-in 0.5s ease;
+}
+
+/* a page appears with a fade; the one leaving fades first (body.gbs-switching) */
+.gbs-scroll > section:not([hidden]) {
+  animation: gbs-fade-in 0.26s ease;
+  transition: opacity 0.14s ease;
+}
+
+body.gbs-switching .gbs-scroll > section:not([hidden]) {
+  animation: none;
+  opacity: 0;
+}
+
+.gbs-leds {
+  transition: opacity 0.25s ease;
+}
+
+body.gbs-switching .gbs-leds {
+  opacity: 0;
+  transition-duration: 0.14s;
 }
