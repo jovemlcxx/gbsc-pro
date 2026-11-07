@@ -18,7 +18,6 @@
 #include "slot.h"
 
 #include <Wire.h>
-#include <Updater.h>
 #include "tv5725.h"
 #include "osd.h"
 #include "SSD1306Wire.h"
@@ -3658,9 +3657,6 @@ static unsigned long dacHoldSince = 0; // a preset was loaded while blanked: the
 static bool bootReapplyDone = false;
 static unsigned long bootReapplyAt = 0;
 volatile bool pictureReapply = false;
-static String otaError;                 // why the last update was refused (empty = fine)
-static unsigned long otaRestartAt = 0; // reboot after the update answered the browser
-static unsigned long otaBusyUntil = 0; // while an update is arriving the loop only serves the network (renewed by every chunk)
 
 // Called after every preset (after applyDevOverrides): the visible window is the whole screen
 // width, centred on the preset's window, and the picture is centred in it. A manual scale
@@ -9237,12 +9233,6 @@ void loop()
         lastSystemTime = millis();
     }
 
-    // An update is being received: skip the video/sync work so the network gets all the time (the page was losing the board at ~11%)
-    if (otaBusyUntil != 0 && (long)(millis() - otaBusyUntil) < 0) {
-        handleWiFi(0);
-        return;
-    }
-
     handleWiFi(0); // WiFi + OTA + WS + MDNS, checks for server enabled + started
 
     if ((millis() - lastSignalTime) >= 100) {
@@ -10211,9 +10201,6 @@ void loop()
             handleWiFi(1);
         }
     }
-
-    if (otaRestartAt != 0 && (long)(millis() - otaRestartAt) >= 0)
-        ESP.restart();
 
     if (pictureReapply) {
         pictureReapply = false;
@@ -11543,51 +11530,12 @@ void startWebserver()
         request->send(200, "application/json", wifiMode == WIFI_AP ? "{\"mode\":\"ap\"}" : "{\"mode\":\"sta\",\"ssid\":\"" + WiFi.SSID() + "\"}");
     });
 
-    // Firmware version, room for an update and a health snapshot (memory, uptime, WiFi, open Web UIs): GET /fw
+    // Firmware version and a health snapshot (memory, uptime, WiFi, open Web UIs): GET /fw
     server.on("/fw", HTTP_GET, [](AsyncWebServerRequest *request) {
         request->send(200, "application/json", String("{\"version\":\"") + GBSC_PRO_FW_VERSION + "\",\"free\":" + ESP.getFreeSketchSpace() +
                                                        ",\"heap\":" + ESP.getFreeHeap() + ",\"block\":" + ESP.getMaxFreeBlockSize() + ",\"up\":" + (millis() / 1000) +
                                                        ",\"rssi\":" + WiFi.RSSI() + ",\"ws\":" + webSocket.connectedClients(false) + "}");
     });
-
-    // Update over the network: POST /update[?md5=<hex>] with the .bin as a multipart file. The browser
-    // does the download (the board needs no TLS), the board checks the image and reboots by itself.
-    // The filesystem (presets, slots, WiFi) is not touched.
-    server.on(
-        "/update", HTTP_POST,
-        [](AsyncWebServerRequest *request) {
-            bool ok = !Update.hasError();
-            String msg = ok ? String("ok") : String(otaError);
-            AsyncWebServerResponse *res = request->beginResponse(ok ? 200 : 500, "application/json",
-                                                                 String("{\"ok\":") + (ok ? "true" : "false") + ",\"message\":\"" + msg + "\"}");
-            res->addHeader("Connection", "close");
-            request->send(res);
-            if (ok)
-                otaRestartAt = millis() + 1500;
-        },
-        [](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
-            if (!index) {
-                otaError = "";
-                // 0xE9 is the first byte of every ESP8266 image: refuses anything else before it touches the flash
-                if (len == 0 || data[0] != 0xE9) {
-                    otaError = "not a firmware image";
-                } else if (!Update.begin((ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000)) {
-                    otaError = "not enough space";
-                } else if (request->hasParam("md5")) {
-                    Update.setMD5(request->getParam("md5")->value().c_str());
-                }
-                SerialM.println(F("[update] start"));
-            }
-            otaBusyUntil = millis() + 15000;
-            if (otaError.length() == 0 && len && Update.write(data, len) != len)
-                otaError = "write failed";
-            if (final && otaError.length() == 0 && !Update.end(true))
-                otaError = Update.hasError() ? "checksum mismatch" : "incomplete";
-            if (otaError.length() != 0 && Update.isRunning())
-                Update.end(false);
-            if (final || otaError.length() != 0)
-                otaBusyUntil = 0;
-        });
 
     // Range expansion mask: GET /range -> current, GET /range?set=0..15 -> change and re-apply
     server.on("/range", HTTP_GET, [](AsyncWebServerRequest *request) {

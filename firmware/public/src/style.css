@@ -608,8 +608,7 @@ section[name="alert"] {
   content: attr(gbs-progress);
 }
 
-.gbs-backup-input,
-[gbs-update-file] {
+.gbs-backup-input {
   cursor: pointer;
   height: 100%;
   left: 0;
@@ -1162,9 +1161,10 @@ textarea {
   background: rgba(255, 255, 255, 0.2);
 }
 
-/* the chosen option is lit with the blue LED */
+/* the chosen option: a plain lit row, no LED */
 .gbs-select__list li[aria-selected="true"] {
-  background: radial-gradient(circle closest-side at 50% 50%, #fff 0, #fff 8%, rgb(50, 130, 255) 34%, rgba(50, 130, 255, 0) 100%);
+  background: rgba(255, 255, 255, 0.28);
+  box-shadow: inset 0 0 0 1px #fff;
 }
 
 /* the board: always whole, never cropped. On a phone held upright it is turned a quarter so its long side runs down the screen */
