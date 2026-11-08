@@ -21,6 +21,7 @@ extern uint8_t getVideoMode();
 extern void applyPresets(uint8_t videoMode);
 extern bool loadSlotSettings();
 extern void zoomStep(int8_t dir);
+extern void scaleStep(bool horizontal, int8_t dir);
 
 // ====================================================================================
 // IR_handleScreenSettings - Screen Settings Menu
@@ -70,7 +71,7 @@ bool IR_handleScreenSettings(void)
                     Menu_navigateTo(OLED_ScreenSettings_Move);
                     break;
                 case IR_KEY_DOWN:
-                    Menu_navigateTo(OLED_ScreenSettings_Borders);
+                    Menu_navigateTo(OLED_ScreenSettings_Zoom);
                     break;
                 case IR_KEY_OK:
                     oled_menuItem = OLED_ScreenSettings_ScaleAdjust;
@@ -86,8 +87,8 @@ bool IR_handleScreenSettings(void)
         return true;
     }
 
-    if (oled_menuItem == OLED_ScreenSettings_Borders) {
-        showMenu("Menu->Screen", "Borders");
+    if (oled_menuItem == OLED_ScreenSettings_Zoom) {
+        showMenu("Menu->Screen", "Zoom");
         OSD_handleCommand(OSD_CMD_SCREEN_PAGE1_VALUES);
 
         if (irDecode()) {
@@ -99,12 +100,41 @@ bool IR_handleScreenSettings(void)
                     Menu_navigateTo(OLED_ScreenSettings_Scale);
                     break;
                 case IR_KEY_DOWN:
+                    Menu_navigateTo(OLED_ScreenSettings_Borders);
+                    break;
+                case IR_KEY_OK:
+                    oled_menuItem = OLED_ScreenSettings_ZoomAdjust;
+                    OSD_handleCommand(OSD_CMD_SCREEN_PAGE1);
+                    OSD_showAdjustArrows(3);
+                    break;
+                case IR_KEY_EXIT:
+                    Menu_navigateTo(OLED_ScreenSettings);
+                    break;
+            }
+            irResume();
+        }
+        return true;
+    }
+
+    if (oled_menuItem == OLED_ScreenSettings_Borders) {
+        showMenu("Menu->Screen", "Borders");
+        OSD_handleCommand(OSD_CMD_SCREEN_PAGE2_VALUES);
+
+        if (irDecode()) {
+            switch (results.value) {
+                case IR_KEY_MENU:
+                    exitMenu();
+                    break;
+                case IR_KEY_UP:
+                    Menu_navigateTo(OLED_ScreenSettings_Zoom);
+                    break;
+                case IR_KEY_DOWN:
                     Menu_navigateTo(OLED_ScreenSettings_FullHeight);
                     break;
                 case IR_KEY_OK:
                     oled_menuItem = OLED_ScreenSettings_BordersAdjust;
-                    OSD_handleCommand(OSD_CMD_SCREEN_PAGE1);
-                    OSD_showAdjustArrows(3);
+                    OSD_handleCommand(OSD_CMD_SCREEN_PAGE2);
+                    OSD_showAdjustArrows(1);
                     break;
                 case IR_KEY_EXIT:
                     Menu_navigateTo(OLED_ScreenSettings);
@@ -180,16 +210,23 @@ bool IR_handleScreenSettings(void)
                         saveUserPrefs();
                         Menu_navigateTo(OLED_ScreenSettings_Scale);
                         break;
-                    // scale: 1 pixel on every side per step (right / up = bigger, left / down = smaller)
+                    // scale: width and height on their own, each grows / shrinks evenly on both sides
+                    // (right = wider, left = narrower, up = taller, down = shorter)
                     case IR_KEY_RIGHT:
-                    case IR_KEY_UP:
                         lastMenuItemTime = millis();
-                        zoomStep(1);
+                        scaleStep(true, 1);
                         break;
                     case IR_KEY_LEFT:
+                        lastMenuItemTime = millis();
+                        scaleStep(true, -1);
+                        break;
+                    case IR_KEY_UP:
+                        lastMenuItemTime = millis();
+                        scaleStep(false, 1);
+                        break;
                     case IR_KEY_DOWN:
                         lastMenuItemTime = millis();
-                        zoomStep(-1);
+                        scaleStep(false, -1);
                         break;
                     case IR_KEY_EXIT:
                         IR_clearRepeatKey();
@@ -206,8 +243,49 @@ bool IR_handleScreenSettings(void)
         return true;
     }
 
-    if (oled_menuItem == OLED_ScreenSettings_BordersAdjust) {
+    if (oled_menuItem == OLED_ScreenSettings_ZoomAdjust) {
         OSD_handleCommand(OSD_CMD_SCREEN_PAGE1_VALUES);
+        if (irDecode()) {
+            uint32_t key = IR_getKeyRepeat();
+            if (key) {
+                switch (key) {
+                    case IR_KEY_MENU:
+                        IR_clearRepeatKey();
+                        exitMenu();
+                        break;
+                    case IR_KEY_OK:
+                        IR_clearRepeatKey();
+                        saveUserPrefs();
+                        Menu_navigateTo(OLED_ScreenSettings_Zoom);
+                        break;
+                    // zoom: both axes, 1 pixel on every side per step (right / up = bigger, left / down = smaller)
+                    case IR_KEY_RIGHT:
+                    case IR_KEY_UP:
+                        lastMenuItemTime = millis();
+                        zoomStep(1);
+                        break;
+                    case IR_KEY_LEFT:
+                    case IR_KEY_DOWN:
+                        lastMenuItemTime = millis();
+                        zoomStep(-1);
+                        break;
+                    case IR_KEY_EXIT:
+                        IR_clearRepeatKey();
+                        saveUserPrefs();
+                        Menu_navigateTo(OLED_ScreenSettings_Zoom);
+                        break;
+                    default:
+                        IR_clearRepeatKey();
+                        break;
+                }
+            }
+            irResume();
+        }
+        return true;
+    }
+
+    if (oled_menuItem == OLED_ScreenSettings_BordersAdjust) {
+        OSD_handleCommand(OSD_CMD_SCREEN_PAGE2_VALUES);
         if (irDecode()) {
             uint32_t key = IR_getKeyRepeat();
             if (key) {
@@ -224,28 +302,28 @@ bool IR_handleScreenSettings(void)
                         lastMenuItemTime = millis();
                         userCommand = 'A';
                         if (!((GBS::VDS_DIS_HB_ST::read() > 4) && (GBS::VDS_DIS_HB_SP::read() < (GBS::VDS_HSYNC_RST::read() - 4)))) {
-                            OSD_showLimitFeedback(ROW_3);
+                            OSD_showLimitFeedback(ROW_1);
                         }
                         break;
                     case IR_KEY_LEFT:
                         lastMenuItemTime = millis();
                         userCommand = 'B';
                         if (!((GBS::VDS_DIS_HB_ST::read() < (GBS::VDS_HSYNC_RST::read() - 4)) && (GBS::VDS_DIS_HB_SP::read() > 4))) {
-                            OSD_showLimitFeedback(ROW_3);
+                            OSD_showLimitFeedback(ROW_1);
                         }
                         break;
                     case IR_KEY_UP:
                         lastMenuItemTime = millis();
                         userCommand = 'C';
                         if (!((GBS::VDS_DIS_VB_ST::read() > 6) && (GBS::VDS_DIS_VB_SP::read() < (GBS::VDS_VSYNC_RST::read() - 4)))) {
-                            OSD_showLimitFeedback(ROW_3);
+                            OSD_showLimitFeedback(ROW_1);
                         }
                         break;
                     case IR_KEY_DOWN:
                         lastMenuItemTime = millis();
                         userCommand = 'D';
                         if (!((GBS::VDS_DIS_VB_ST::read() < (GBS::VDS_VSYNC_RST::read() - 4)) && (GBS::VDS_DIS_VB_SP::read() > 6))) {
-                            OSD_showLimitFeedback(ROW_3);
+                            OSD_showLimitFeedback(ROW_1);
                         }
                         break;
                     case IR_KEY_EXIT:
@@ -318,7 +396,7 @@ bool IR_handleScreenSettings(void)
                 case IR_KEY_LEFT:
                 case IR_KEY_OK:
                     serialCommand = 'Q'; // back to the preset / automatic scale and position
-                    OSD_showOkFeedback(ROW_2);
+                    OSD_showOkFeedback(ROW_3);
                     break;
                 case IR_KEY_EXIT:
                     Menu_navigateTo(OLED_ScreenSettings);

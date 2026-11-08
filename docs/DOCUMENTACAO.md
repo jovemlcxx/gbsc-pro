@@ -90,13 +90,14 @@ O display **OLED** e o **knob** na parte superior dão acesso ao menu sem o cont
 ### Imagem livre
 A imagem é **livre**: jogos de qualquer proporção (por exemplo, arcades em 16:9) podem ser esticados e movidos até onde você quiser. A janela visível ocupa a largura da tela, e a única limitação é a borda da linha de vídeo capturada.
 
-### Mover e Escala
-Todos os passos são de cerca de **1 pixel** por toque. A escala cresce 1 pixel em cada direção (cada lado), e as escalas e posições manuais voltam ao automático quando a resolução de saída muda.
+### Mover, Escala e Zoom
+Todos os passos são de cerca de **1 pixel** por toque. A escala e o zoom crescem para os dois lados, e as escalas e posições manuais voltam ao automático quando a resolução de saída muda.
 
 | Controle | Efeito |
 |---|---|
 | **Mover** | Desloca a imagem dentro do quadro (horizontal e vertical) |
-| **Escala** | Direita ou cima: aumenta. Esquerda ou baixo: diminui. Cresce 1 pixel para cada lado, na horizontal e na vertical |
+| **Escala** | Cada direção ajusta um eixo, sempre para os dois lados: direita aumenta a largura (expande para a direita e a esquerda), esquerda diminui; cima aumenta a altura (expande para cima e para baixo), baixo diminui |
+| **Zoom** | Direita ou cima: aumenta. Esquerda ou baixo: diminui. Largura e altura de uma vez, 1 pixel para cada lado (útil para cortar a borda preta que os consoles desenham) |
 
 As direções do controle remoto são as mesmas da Web.
 
@@ -106,7 +107,7 @@ Fica no menu *Ajustes de Tela* (página 2) e na Web (Picture Control). Volta a e
 Os ajustes manuais são guardados por norma (NTSC e PAL) e reaplicados, centralizados, ao religar.
 
 ### Ajustes de tela
-Mover, Escala, Bordas e Altura Total continuam no menu e na Web (painel *Picture Control* e opção *Full Height*).
+Mover, Escala, Zoom, Bordas e Altura Total continuam no menu e na Web (painel *Picture Control* e opção *Full Height*).
 
 ---
 

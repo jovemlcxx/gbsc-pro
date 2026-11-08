@@ -36,7 +36,7 @@ A interface Web foi **refeita**, com o visual baseado no design do próprio GBSC
 
 - **Switches** para liga e desliga: scanlines, filtro de linha, peaking, nitidez e resposta ao degrau.
 - **Intensidade das scanlines** (00 a 50), **ganho de vermelho, verde e azul**, **volume** e **mudo** com botões − e +, segurando repete.
-- **Escala** que cresce 1 pixel para cada lado, com **Redefinir escala**.
+- **Escala** (largura e altura separadas, cada uma cresce para os dois lados) e **Zoom** (as duas de uma vez, 1 pixel por lado), com **Redefinir escala**.
 
 ## Scanlines
 
@@ -74,7 +74,7 @@ O original deixava a última imagem congelada ao desligar o console e mostrava t
 
 ### Imagem
 - **Imagem livre**, para jogos de qualquer proporção. Estique e mova até onde quiser; o limite é a própria tela.
-- **Mover e Escala com passos de ~1 pixel.** A escala cresce 1 pixel para cada lado e volta ao automático quando a resolução de saída muda.
+- **Mover, Escala e Zoom com passos de ~1 pixel.** A escala ajusta largura e altura separadamente, o zoom as duas juntas, e ambos voltam ao automático quando a resolução de saída muda.
 - **Redefinir escala** (volta ao ajuste automático), no menu *Ajustes de Tela* e na Web.
 - Saída padrão em 1080p, com cores corretas.
 
@@ -125,6 +125,7 @@ Na primeira inicialização depois de gravar, o firmware aplica esses padrões *
 ### Imagem e escala
 - **Mover e esticar:** a imagem só crescia para um lado, o quadro visível aumentava junto e os passos eram grossos. Agora a janela de vídeo fica fixa na largura da tela e cada toque move ou estica ~1 pixel.
 - **Controle do menu:** direita estreitava e cima achatava, o contrário da Web. Agora as direções são iguais.
+- **Ganho automático do ADC** ligado por padrão.
 - **Escala salva:** é reaplicada centralizada ao religar.
 - **Bordas do 1080p:** eliminadas as faixas verdes nas laterais.
 - **Atalhos de scanline:** guardam o valor mesmo quando o sinal atual não permite scanlines.

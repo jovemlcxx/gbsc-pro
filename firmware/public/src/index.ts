@@ -212,7 +212,14 @@ const GBSControl = {
       down: "/",
     },
     scale: {
-      type: "zoom", // 1 pixel on every side per step
+      type: "scale", // width and height on their own, each grows / shrinks evenly on both sides
+      left: "sh=-1",
+      up: "sv=1",
+      right: "sh=1",
+      down: "sv=-1",
+    },
+    zoom: {
+      type: "zoom", // both axes, 1 pixel on every side per step
       left: "-1",
       up: "1",
       right: "1",
@@ -1627,6 +1634,11 @@ const controlClick = (control: HTMLButtonElement) => () => {
     case "zoom":
       fetch("/pro", { method: "POST", body: new URLSearchParams({ zm: target[controlKey] }) }).catch(() => {});
       break;
+    case "scale": {
+      const [k, v] = target[controlKey].split("=");
+      fetch("/pro", { method: "POST", body: new URLSearchParams({ [k]: v }) }).catch(() => {});
+      break;
+    }
   }
 };
 
@@ -2659,6 +2671,7 @@ const I18N_PT: { [en: string]: string } = {
   "Picture Control": "Controle de imagem",
   "move": "mover",
   "scale": "escala",
+  "zoom": "zoom",
   "borders": "bordas",
   "Filters": "Filtros",
   "scanlines": "scanlines",

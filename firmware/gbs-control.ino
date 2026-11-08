@@ -215,7 +215,7 @@ char serialCommand;               // Serial / Web Server commands
 String serialCommandBuffer = "";  // Buffering for Web Server commands
 char userCommand;               // Serial / Web Server commands
 String userCommandBuffer = "";  // Buffering for Web Server commands
-static volatile int8_t webZoomPending = 0;  // Pro: zoom / RGB gain asked by the web, applied in loop()
+static volatile int8_t webZoomPending = 0, webScaleH = 0, webScaleV = 0;  // Pro: zoom / RGB gain asked by the web, applied in loop()
 static volatile bool webRgbPending = false;
 static volatile int8_t webScanPending = 0;
 void scanlineStrengthStep(int8_t dir);
@@ -2545,33 +2545,35 @@ void scaleVertical(uint16_t amountToScale, bool subtracting)
         GBS::VDS_VSCALE::write(vscale);
 }
 
-// Pro: zoom, grows (dir > 0) or shrinks the picture by one pixel on every side:
-// 1 clock per side horizontally (scaleHorizontal), 2 lines vertically with the top edge moved 1 line
-void zoomStep(int8_t dir)
+// Pro: one step of the picture size, symmetric around the picture centre: horizontally 1 clock per side (scaleHorizontal),
+// vertically 2 lines with the top edge moved 1 line. dir > 0 grows, dir < 0 shrinks. Returns false at the limit.
+static bool scaleAxis(bool horizontal, int8_t dir)
 {
     float pxPerClk;
     uint16_t lines, screenPx;
     if (!hGeomSupported(pxPerClk, lines, screenPx)) {
         SerialM.println("limit");
-        return;
+        return false;
     }
-    // horizontal: the width changes by 2 output pixels and the start moves 1 pixel the other way,
-    // so it grows on both sides (the plain scale step keeps the left edge)
-    uint16_t h0 = geomCurH();
-    float w = geomBase.cap * 1024.0f / h0 + dir * 2.0f / pxPerClk;
-    int16_t h = (int16_t)(geomBase.cap * 1024.0f / w + 0.5f);
-    if (h == (int16_t)h0)
-        h += dir > 0 ? -1 : 1;
-    int16_t oldMoveH = geomMoveH;
-    geomMoveH = constrain(geomMoveH - dir * (int16_t)(1.0f / pxPerClk + 0.5f), -400, 400);
-    if (!setHScaleCentred(constrain(h, 256, 1023))) {
-        geomMoveH = oldMoveH;
-        SerialM.println("limit");
-        return;
+    if (horizontal) {
+        // the width changes by 2 output pixels and the start moves 1 pixel the other way,
+        // so it grows on both sides (the plain scale step keeps the left edge)
+        uint16_t h0 = geomCurH();
+        float w = geomBase.cap * 1024.0f / h0 + dir * 2.0f / pxPerClk;
+        int16_t h = (int16_t)(geomBase.cap * 1024.0f / w + 0.5f);
+        if (h == (int16_t)h0)
+            h += dir > 0 ? -1 : 1;
+        int16_t oldMoveH = geomMoveH;
+        geomMoveH = constrain(geomMoveH - dir * (int16_t)(1.0f / pxPerClk + 0.5f), -400, 400);
+        if (!setHScaleCentred(constrain(h, 256, 1023))) {
+            geomMoveH = oldMoveH;
+            SerialM.println("limit");
+            return false;
+        }
+        setScreenHScale(geomCurH());
+        setScreenHMove(geomMoveH == 0 ? 0 : GEOM_MOVE_BASE + geomMoveH);
+        return true;
     }
-    setScreenHScale(geomCurH());
-    setScreenHMove(geomMoveH == 0 ? 0 : GEOM_MOVE_BASE + geomMoveH);
-
     uint16_t v0 = GBS::VDS_VSCALE::read();
     float hv = lines * (float)geomBase.vScale / v0 + 2 * dir;
     int16_t v = (int16_t)(lines * (float)geomBase.vScale / hv + 0.5f);
@@ -2582,11 +2584,25 @@ void zoomStep(int8_t dir)
     if (!setVScaleCentred(constrain(v, 128, 1023))) {
         geomMoveV = oldMoveV;
         SerialM.println("limit");
-        return;
+        return false;
     }
     setScreenVScale(GBS::VDS_VSCALE::read());
     setScreenVMoveSt(geomMoveV == 0 ? 0xFFFF : GEOM_MOVE_BASE + geomMoveV);
     setScreenVMoveSp(geomMoveV == 0 ? 0xFFFF : GEOM_MOVE_BASE + geomMoveV);
+    return true;
+}
+
+// Scale tool: width (horizontal = true) or height on its own
+void scaleStep(bool horizontal, int8_t dir)
+{
+    scaleAxis(horizontal, dir);
+}
+
+// Zoom tool: both axes at once (the black border consoles draw around the game is cropped evenly)
+void zoomStep(int8_t dir)
+{
+    if (scaleAxis(true, dir))
+        scaleAxis(false, dir);
 }
 
 // modified to move VBSP, set VBST to VBSP-2
@@ -8206,7 +8222,7 @@ void loadDefaultUserOptions()
     uopt->enableFrameTimeLock = 1; // Active FrameTime Lock: output frame rate follows the input (no tear line). Method 0.
     uopt->presetSlot = 'A';          //
     uopt->frameTimeLockMethod = 0; // compatibility with more displays
-    uopt->enableAutoGain = 0;
+    uopt->enableAutoGain = 1; // ADC auto gain on by default
     uopt->wantScanlines = 1;   // OSSC-like scanlines on by default (strength 00 below)
     uopt->wantOutputComponent = 0;
     uopt->deintMode = 0;
@@ -9290,6 +9306,13 @@ void loop()
         int8_t z = webZoomPending;
         webZoomPending = 0;
         zoomStep(z);
+        webSaveDue = millis() + 1500;
+    }
+    if (webScaleH || webScaleV) {
+        int8_t h = webScaleH, v = webScaleV;
+        webScaleH = webScaleV = 0;
+        if (h) scaleStep(true, h);
+        if (v) scaleStep(false, v);
         webSaveDue = millis() + 1500;
     }
     if (webScanPending) {
@@ -12098,14 +12121,18 @@ void startWebserver()
             return;
         }
 
-        // Web parity with the TV/OLED menus: sl = scanline intensity step, gr/gg/gb = RGB gain, vol, mute, zm = zoom
+        // Web parity with the TV/OLED menus: sl = scanline intensity step, gr/gg/gb = RGB gain, vol, mute, zm = zoom, sh/sv = scale width/height
         // (the value is the step: 1 or -1; vol is 0..50; mute is 0/1)
         if (request->hasArg("sl") || request->hasArg("gr") || request->hasArg("gg") || request->hasArg("gb")
-            || request->hasArg("vol") || request->hasArg("mute") || request->hasArg("zm")) {
+            || request->hasArg("vol") || request->hasArg("mute") || request->hasArg("zm") || request->hasArg("sh") || request->hasArg("sv")) {
             if (request->hasArg("sl")) {
                 webScanPending = request->arg("sl").toInt() > 0 ? 1 : -1;
             } else if (request->hasArg("zm")) {
                 webZoomPending = request->arg("zm").toInt() > 0 ? 1 : -1; // I2C work: done on the main loop
+            } else if (request->hasArg("sh")) {
+                webScaleH = request->arg("sh").toInt() > 0 ? 1 : -1; // scale: width on its own
+            } else if (request->hasArg("sv")) {
+                webScaleV = request->arg("sv").toInt() > 0 ? 1 : -1; // scale: height on its own
             } else if (request->hasArg("vol")) {
                 uopt->volume = constrain(request->arg("vol").toInt(), 0, 50);
                 uopt->audioMuted = 0;

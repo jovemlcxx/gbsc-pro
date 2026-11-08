@@ -15,7 +15,7 @@ void handle_ScreenSettings_Page1(void)
     OSD_writePageIcons(false, '1', true);
     OSD_writeStringAtRow(1, 1, "Move");
     OSD_writeStringAtRow(2, 1, "Scale");
-    OSD_writeStringAtRow(3, 1, "Borders");
+    OSD_writeStringAtRow(3, 1, "Zoom");
 }
 
 void handle_ScreenSettings_Page1_Values(void)
@@ -32,21 +32,22 @@ void handle_ScreenSettings_Page1_Values(void)
     OSD_displayNumber4DigitAtRow(2, GBS::VDS_HSCALE::read(), 12, 11, 10, 9);
     OSD_writeCharAtRow(2, 13, '/');
     OSD_displayNumber4DigitAtRow(2, GBS::VDS_VSCALE::read(), 17, 16, 15, 14);
-    OSD_displayNumber4DigitAtRow(3, GBS::VDS_DIS_HB_ST::read(), 12, 11, 10, 9);
-    OSD_writeCharAtRow(3, 13, '/');
-    OSD_displayNumber4DigitAtRow(3, GBS::VDS_DIS_VB_ST::read(), 17, 16, 15, 14);
 }
 
 void handle_ScreenSettings_Page2(void)
 {
     OSD_setMenuLineColors(selectedMenuLine);
     OSD_writePageIcons(true, '2', false);
-    OSD_writeStringAtRow(1, 1, "Full height");
-    OSD_drawDashRange(1, 12, 22);
-    OSD_writeStringAtRow(2, 1, "Reset scale");
+    OSD_writeStringAtRow(1, 1, "Borders");
+    OSD_writeStringAtRow(2, 1, "Full height");
+    OSD_drawDashRange(2, 12, 22);
+    OSD_writeStringAtRow(3, 1, "Reset scale");
 }
 
 void handle_ScreenSettings_Page2_Values(void)
 {
-    OSD_writeOnOff(1, uopt->wantFullHeight);
+    OSD_displayNumber4DigitAtRow(1, GBS::VDS_DIS_HB_ST::read(), 12, 11, 10, 9);
+    OSD_writeCharAtRow(1, 13, '/');
+    OSD_displayNumber4DigitAtRow(1, GBS::VDS_DIS_VB_ST::read(), 17, 16, 15, 14);
+    OSD_writeOnOff(2, uopt->wantFullHeight);
 }

@@ -2070,6 +2070,13 @@ body:has(.gbs-loader.is-done) .gbs-leds {
               </button>
               <button
                 class="gbs-button gbs-button__control"
+                gbs-control-target="zoom"
+              >
+                <div class="gbs-icon">zoom_in</div>
+                <div>zoom</div>
+              </button>
+              <button
+                class="gbs-button gbs-button__control"
                 gbs-control-target="borders"
               >
                 <div class="gbs-icon">crop_free</div>
@@ -2139,6 +2146,42 @@ body:has(.gbs-loader.is-done) .gbs-leds {
 
             <div class="gbs-flex">
               <button
+                gbs-pro-step="sh=-1"
+                class="gbs-button gbs-button__control gbs-icon gbs-button__secondary"
+              >
+                keyboard_arrow_left
+              </button>
+              <button
+                gbs-pro-step="sv=1"
+                class="gbs-button gbs-button__control gbs-icon gbs-button__secondary"
+              >
+                keyboard_arrow_up
+              </button>
+              <button
+                gbs-pro-step="sh=1"
+                class="gbs-button gbs-button__control gbs-icon gbs-button__secondary"
+              >
+                keyboard_arrow_right
+              </button>
+            </div>
+
+            <div class="gbs-flex gbs-margin__bottom--16">
+              <button class="gbs-button gbs-button__control" active>
+                <div class="gbs-icon">zoom_out_map</div>
+                <div>scale</div>
+              </button>
+              <button
+                gbs-pro-step="sv=-1"
+                class="gbs-button gbs-button__control gbs-icon gbs-button__secondary"
+              >
+                keyboard_arrow_down
+              </button>
+              <button class="gbs-button gbs-button__control gbs-icon" disabled>
+                south_east
+              </button>
+            </div>
+            <div class="gbs-flex">
+              <button
                 gbs-pro-step="zm=-1"
                 class="gbs-button gbs-button__control gbs-icon gbs-button__secondary"
               >
@@ -2160,8 +2203,8 @@ body:has(.gbs-loader.is-done) .gbs-leds {
 
             <div class="gbs-flex gbs-margin__bottom--16">
               <button class="gbs-button gbs-button__control" active>
-                <div class="gbs-icon">zoom_out_map</div>
-                <div>scale</div>
+                <div class="gbs-icon">zoom_in</div>
+                <div>zoom</div>
               </button>
               <button
                 gbs-pro-step="zm=-1"
@@ -3532,6 +3575,13 @@ const GBSControl = {
             down: "/",
         },
         scale: {
+            type: "scale",
+            left: "sh=-1",
+            up: "sv=1",
+            right: "sh=1",
+            down: "sv=-1",
+        },
+        zoom: {
             type: "zoom",
             left: "-1",
             up: "1",
@@ -4728,6 +4778,11 @@ const controlClick = (control) => () => {
         case "zoom":
             fetch("/pro", { method: "POST", body: new URLSearchParams({ zm: target[controlKey] }) }).catch(() => { });
             break;
+        case "scale": {
+            const [k, v] = target[controlKey].split("=");
+            fetch("/pro", { method: "POST", body: new URLSearchParams({ [k]: v }) }).catch(() => { });
+            break;
+        }
     }
 };
 const controlMouseDown = (control) => () => {
@@ -5667,6 +5722,7 @@ const I18N_PT = {
     "Picture Control": "Controle de imagem",
     "move": "mover",
     "scale": "escala",
+    "zoom": "zoom",
     "borders": "bordas",
     "Filters": "Filtros",
     "scanlines": "scanlines",

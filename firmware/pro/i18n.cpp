@@ -115,6 +115,7 @@ uint8_t uiLang = LANG_EN;
     /* ---- screen ---- */ \
     X("Move", "Mover") \
     X("Scale", "Escala") \
+    X("Zoom", "Zoom") \
     X("Borders", "Bordas") \
     X("Full height", "Altura Total") \
     X("Reset scale", "Redefinir Escala") \

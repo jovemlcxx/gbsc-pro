@@ -599,6 +599,13 @@
               </button>
               <button
                 class="gbs-button gbs-button__control"
+                gbs-control-target="zoom"
+              >
+                <div class="gbs-icon">zoom_in</div>
+                <div>zoom</div>
+              </button>
+              <button
+                class="gbs-button gbs-button__control"
                 gbs-control-target="borders"
               >
                 <div class="gbs-icon">crop_free</div>
@@ -668,6 +675,42 @@
 
             <div class="gbs-flex">
               <button
+                gbs-pro-step="sh=-1"
+                class="gbs-button gbs-button__control gbs-icon gbs-button__secondary"
+              >
+                keyboard_arrow_left
+              </button>
+              <button
+                gbs-pro-step="sv=1"
+                class="gbs-button gbs-button__control gbs-icon gbs-button__secondary"
+              >
+                keyboard_arrow_up
+              </button>
+              <button
+                gbs-pro-step="sh=1"
+                class="gbs-button gbs-button__control gbs-icon gbs-button__secondary"
+              >
+                keyboard_arrow_right
+              </button>
+            </div>
+
+            <div class="gbs-flex gbs-margin__bottom--16">
+              <button class="gbs-button gbs-button__control" active>
+                <div class="gbs-icon">zoom_out_map</div>
+                <div>scale</div>
+              </button>
+              <button
+                gbs-pro-step="sv=-1"
+                class="gbs-button gbs-button__control gbs-icon gbs-button__secondary"
+              >
+                keyboard_arrow_down
+              </button>
+              <button class="gbs-button gbs-button__control gbs-icon" disabled>
+                south_east
+              </button>
+            </div>
+            <div class="gbs-flex">
+              <button
                 gbs-pro-step="zm=-1"
                 class="gbs-button gbs-button__control gbs-icon gbs-button__secondary"
               >
@@ -689,8 +732,8 @@
 
             <div class="gbs-flex gbs-margin__bottom--16">
               <button class="gbs-button gbs-button__control" active>
-                <div class="gbs-icon">zoom_out_map</div>
-                <div>scale</div>
+                <div class="gbs-icon">zoom_in</div>
+                <div>zoom</div>
               </button>
               <button
                 gbs-pro-step="zm=-1"

@@ -183,6 +183,13 @@ const GBSControl = {
             down: "/",
         },
         scale: {
+            type: "scale",
+            left: "sh=-1",
+            up: "sv=1",
+            right: "sh=1",
+            down: "sv=-1",
+        },
+        zoom: {
             type: "zoom",
             left: "-1",
             up: "1",
@@ -1379,6 +1386,11 @@ const controlClick = (control) => () => {
         case "zoom":
             fetch("/pro", { method: "POST", body: new URLSearchParams({ zm: target[controlKey] }) }).catch(() => { });
             break;
+        case "scale": {
+            const [k, v] = target[controlKey].split("=");
+            fetch("/pro", { method: "POST", body: new URLSearchParams({ [k]: v }) }).catch(() => { });
+            break;
+        }
     }
 };
 const controlMouseDown = (control) => () => {
@@ -2318,6 +2330,7 @@ const I18N_PT = {
     "Picture Control": "Controle de imagem",
     "move": "mover",
     "scale": "escala",
+    "zoom": "zoom",
     "borders": "bordas",
     "Filters": "Filtros",
     "scanlines": "scanlines",
